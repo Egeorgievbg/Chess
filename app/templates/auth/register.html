@@ -1,0 +1,45 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Регистрация | Chess for Kids{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-card">
+        <h1>Създай нов профил</h1>
+        <p class="auth-subtitle">Въведи няколко основни данни и избери тема на дъската. Можеш да я промениш по всяко време.</p>
+
+        <form method="POST" class="auth-form">
+            <label class="form-field">
+                <span>Потребителско име</span>
+                <input type="text" name="username" minlength="3" required placeholder="минимум 3 символа">
+            </label>
+            <label class="form-field">
+                <span>Имейл</span>
+                <input type="email" name="email" required placeholder="kid@example.com">
+            </label>
+            <label class="form-field">
+                <span>Тема на дъската</span>
+                <select name="board_theme">
+                    <option value="classic">Класическа</option>
+                    <option value="green">Горска</option>
+                    <option value="blackwhite">Черно-бяла</option>
+                </select>
+            </label>
+            <label class="form-field">
+                <span>Парола</span>
+                <input type="password" name="password" minlength="6" required placeholder="минимум 6 символа">
+            </label>
+            <label class="form-field">
+                <span>Повтори паролата</span>
+                <input type="password" name="password_confirm" minlength="6" required>
+            </label>
+            <button type="submit" class="btn btn-primary btn-full">Регистрирай се</button>
+        </form>
+
+        <p class="auth-switch">
+            Имаш профил?
+            <a href="{{ url_for('auth.login') }}">Влез тук</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

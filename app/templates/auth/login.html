@@ -1,0 +1,29 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Вход | Chess for Kids{% endblock %}
+
+{% block content %}
+<section class="auth-section">
+    <div class="auth-card">
+        <h1>Добре дошъл отново!</h1>
+        <p class="auth-subtitle">Въведи потребителско име и парола, за да продължиш игрите си.</p>
+
+        <form method="POST" class="auth-form">
+            <label class="form-field">
+                <span>Потребителско име</span>
+                <input type="text" name="username" required placeholder="пример: chess_kid">
+            </label>
+            <label class="form-field">
+                <span>Парола</span>
+                <input type="password" name="password" required placeholder="минимум 6 символа">
+            </label>
+            <button type="submit" class="btn btn-primary btn-full">Вход</button>
+        </form>
+
+        <p class="auth-switch">
+            Нямаш профил?
+            <a href="{{ url_for('auth.register') }}">Регистрирай се тук</a>
+        </p>
+    </div>
+</section>
+{% endblock %}

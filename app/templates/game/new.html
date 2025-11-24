@@ -1,0 +1,70 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Нова партия | Chess for Kids{% endblock %}
+
+{% block content %}
+<section class="game-setup-section">
+    <div class="game-setup-container">
+        <h1>Създай нова игра</h1>
+        <form method="POST" class="game-setup-form">
+            <div class="form-group">
+                <label for="color">Избери цвят</label>
+                <div class="color-selector">
+                    <label class="radio-option">
+                        <input type="radio" name="color" value="white" checked>
+                        <span class="radio-label">Играй с белите</span>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="color" value="black">
+                        <span class="radio-label">Играй с черните</span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Ниво на AI</label>
+                <div class="difficulty-selector">
+                    <label class="radio-option">
+                        <input type="radio" name="difficulty" value="easy" checked>
+                        <span class="radio-label">Лесно</span>
+                        <small>Случайни ходове и приятелски темпо.</small>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="difficulty" value="medium">
+                        <span class="radio-label">Средно</span>
+                        <small>Приоритизира взимания и шахове.</small>
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="difficulty" value="hard">
+                        <span class="radio-label">Трудно</span>
+                        <small>Минимакс на 3 полухода и реалистично забавяне.</small>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="opponent">Приятел (по желание)</label>
+                <input type="text" id="opponent" name="opponent" placeholder="въведи потребителско име, ако искаш да поканиш приятел">
+            </div>
+
+            <div class="form-group">
+                <label for="time_control">Контрол на времето</label>
+                <select id="time_control" name="time_control">
+                    <option value="unlimited">Без ограничение</option>
+                    <option value="bullet:1+0">Куршум (1 минута)</option>
+                    <option value="blitz:3+2">Блиц (3 мин + 2 сек)</option>
+                    <option value="blitz:5+0" selected>Блиц (5 мин)</option>
+                    <option value="rapid:10+5">Рапид (10 мин + 5 сек)</option>
+                    <option value="rapid:15+10">Рапид (15 мин + 10 сек)</option>
+                    <option value="classical:30+0">Класическо (30 мин)</option>
+                </select>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-large">Започни играта</button>
+                <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Назад</a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

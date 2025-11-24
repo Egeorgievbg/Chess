@@ -1,0 +1,70 @@
+﻿{% extends "base.html" %}
+
+{% block title %}Начало | Chess for Kids{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <div class="hero-content">
+        <p class="eyebrow">Учебна платформа за малки шахматисти</p>
+        <h1>Играй, учи и побеждавай в безопасна среда за деца.</h1>
+        <p>Chess for Kids комбинира удобен интерфейс, адаптивен AI и много образователни ресурси. Подходящо е за първи стъпки и за смели атаки срещу компютъра.</p>
+        <div class="hero-actions">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('game.new_game') }}" class="btn btn-primary">Започни нова игра</a>
+                <a href="{{ url_for('main.profile') }}" class="btn btn-secondary">Моят профил</a>
+            {% else %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Създай акаунт</a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Вход</a>
+            {% endif %}
+        </div>
+    </div>
+    <div class="hero-visual">
+        <div class="board-preview">
+            <div class="preview-header">
+                <span class="dot dot-green"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-red"></span>
+            </div>
+            <div class="preview-body">
+                <p>Пълна история на ходовете, таймери и приятелска статистика. Всичко в една страница.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="features">
+    <h2>Какво получаваш с Chess for Kids</h2>
+    <div class="feature-grid">
+        <article class="feature-card">
+            <div class="feature-icon">♞</div>
+            <h3>Интерактивна дъска</h3>
+            <p>Красиви теми, плавни анимации и подсказки за възможните ходове.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Умно AI</h3>
+            <p>Три нива на трудност и реалистично забавяне, за да се чувстваш като срещу истински съперник.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon">📚</div>
+            <h3>Уроци и задания</h3>
+            <p>Шест тематични урока с примери, задачи и любопитни факти за шаха.</p>
+        </article>
+        <article class="feature-card">
+            <div class="feature-icon">🕓</div>
+            <h3>Контрол на времето</h3>
+            <p>Блиц, рапид или без ограничение – сам избираш темпото на игра.</p>
+        </article>
+    </div>
+</section>
+
+<section class="cta-section">
+    <div class="cta-card">
+        <h2>Готов ли си за нова партия?</h2>
+        <p>Регистрирай се безплатно и проследявай всяка победа, реми и загуба. Всички игри се запазват, за да можеш да ги прегледаш по-късно.</p>
+        <a href="{{ url_for('game.new_game') if current_user.is_authenticated else url_for('auth.register') }}" class="btn btn-large">
+            {{ 'Играй сега' if current_user.is_authenticated else 'Създай акаунт' }}
+        </a>
+    </div>
+</section>
+{% endblock %}
