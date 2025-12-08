@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, jsonify, request, redirect, url_for, flash
 from flask_login import login_required, current_user
-from app import db
+from app import db, socketio
 from app.models import Game
 import chess
 import random
@@ -376,6 +376,8 @@ def new_game():
             black_score=0,
             redo_stack='[]'
         )
+        if opponent_id:
+            game.is_multiplayer_online = True
         db.session.add(game)
         db.session.commit()
         
@@ -511,8 +513,10 @@ def make_move(game_id):
             payload.update({
                 'ai_move': ai_move.uci() if ai_move else None,
                 'ai_delay_ms': ai_delay_ms,
-                'last_move': move_uci
+                'last_move': move_uci,
+                'game_id': game.id
             })
+            socketio.emit('move_made', payload, room=f"game_{game.id}")
             return jsonify(payload)
         else:
             return {'error': 'Invalid move'}, 400
@@ -526,7 +530,23 @@ def view_game(game_id):
     # Allow owner or invited opponent to view the game
     if game.player_id != current_user.id and game.opponent_id != current_user.id:
         return {'error': 'Unauthorized'}, 403
-    return render_template('game/play.html', game=game)
+    viewer_color = game.player_color if current_user.id == game.player_id else ('black' if game.player_color == 'white' else 'white')
+    viewer_label = current_user.username
+    opponent_user = game.opponent if current_user.id == game.player_id else game.player
+    if opponent_user:
+        opponent_label = opponent_user.username
+    elif not game.opponent_id:
+        difficulty_label = game.difficulty.title() if game.difficulty else 'AI'
+        opponent_label = f'Роботът {difficulty_label}'
+    else:
+        opponent_label = 'Чака'
+    return render_template(
+        'game/play.html',
+        game=game,
+        viewer_color=viewer_color,
+        player_label=viewer_label,
+        opponent_label=opponent_label
+    )
 
 
 @game_bp.route('/<int:game_id>/undo', methods=['POST'])

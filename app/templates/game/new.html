@@ -1,70 +1,136 @@
 ﻿{% extends "base.html" %}
 
-{% block title %}Нова партия | Chess for Kids{% endblock %}
+{% block title %}Нова Мисия | Chess for Kids{% endblock %}
 
 {% block content %}
-<section class="game-setup-section">
-    <div class="game-setup-container">
-        <h1>Създай нова игра</h1>
-        <form method="POST" class="game-setup-form">
-            <div class="form-group">
-                <label for="color">Избери цвят</label>
-                <div class="color-selector">
-                    <label class="radio-option">
+<div class="mission-control-wrapper">
+    
+    <!-- ЕПИЧЕН ФОН: Летящи фигури -->
+    <div class="space-background">
+        <!-- Огромен Кон (замъглен, отляво) -->
+        <i class="fa-solid fa-chess-knight floating-piece piece-1"></i>
+        <!-- Огромен Топ (отдясно) -->
+        <i class="fa-solid fa-chess-rook floating-piece piece-2"></i>
+        <!-- Пешка (по-малка, по средата) -->
+        <i class="fa-solid fa-chess-pawn floating-piece piece-3"></i>
+        <!-- Царица (далече в дълбочината) -->
+        <i class="fa-solid fa-chess-queen floating-piece piece-4"></i>
+    </div>
+
+    <div class="setup-card animated-entry">
+        <div class="setup-header">
+            <span class="eyebrow">КОМАНДЕН ЦЕНТЪР</span>
+            <h1>Настрой своята битка</h1>
+        </div>
+
+        <form method="POST" class="setup-form">
+            
+            <!-- ИЗБОР НА ОТБОР -->
+            <div class="setup-section">
+                <h3 class="section-title"><i class="fa-solid fa-shield-halved"></i> Избери страна</h3>
+                <div class="color-selection-grid">
+                    
+                    <!-- БЕЛИТЕ: Златен/Светъл стил -->
+                    <label class="selection-card color-card white-team">
                         <input type="radio" name="color" value="white" checked>
-                        <span class="radio-label">Играй с белите</span>
+                        <div class="card-inner">
+                            <div class="card-visual">
+                                <i class="fa-regular fa-chess-king"></i> <!-- Regular за по-фин вид -->
+                            </div>
+                            <span class="card-label">Белите</span>
+                            <span class="card-sub">Първи ход</span>
+                        </div>
+                        <div class="selection-border"></div>
                     </label>
-                    <label class="radio-option">
+
+                    <!-- ЧЕРНИТЕ: Тъмен/Неонов стил -->
+                    <label class="selection-card color-card black-team">
                         <input type="radio" name="color" value="black">
-                        <span class="radio-label">Играй с черните</span>
+                        <div class="card-inner">
+                            <div class="card-visual">
+                                <i class="fa-solid fa-chess-king"></i> <!-- Solid за плътност -->
+                            </div>
+                            <span class="card-label">Черните</span>
+                            <span class="card-sub">Контра атака</span>
+                        </div>
+                        <div class="selection-border"></div>
                     </label>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label>Ниво на AI</label>
-                <div class="difficulty-selector">
-                    <label class="radio-option">
+            <!-- НИВО НА AI (Без промяна в HTML, само CSS ще го оправи) -->
+            <div class="setup-section">
+                <h3 class="section-title"><i class="fa-solid fa-microchip"></i> Ниво на робота</h3>
+                <div class="difficulty-grid">
+                    <label class="selection-card diff-card easy">
                         <input type="radio" name="difficulty" value="easy" checked>
-                        <span class="radio-label">Лесно</span>
-                        <small>Случайни ходове и приятелски темпо.</small>
+                        <div class="diff-icon"><i class="fa-solid fa-face-smile-beam"></i></div>
+                        <div class="diff-content">
+                            <strong>Начинаещ</strong>
+                            <small>Прави грешки, за да се учиш.</small>
+                        </div>
+                        <div class="check-circle"><i class="fa-solid fa-check"></i></div>
                     </label>
-                    <label class="radio-option">
+
+                    <label class="selection-card diff-card medium">
                         <input type="radio" name="difficulty" value="medium">
-                        <span class="radio-label">Средно</span>
-                        <small>Приоритизира взимания и шахове.</small>
+                        <div class="diff-icon"><i class="fa-solid fa-robot"></i></div>
+                        <div class="diff-content">
+                            <strong>Напреднал</strong>
+                            <small>Играе сериозно, но пропуска капани.</small>
+                        </div>
+                        <div class="check-circle"><i class="fa-solid fa-check"></i></div>
                     </label>
-                    <label class="radio-option">
+
+                    <label class="selection-card diff-card hard">
                         <input type="radio" name="difficulty" value="hard">
-                        <span class="radio-label">Трудно</span>
-                        <small>Минимакс на 3 полухода и реалистично забавяне.</small>
+                        <div class="diff-icon"><i class="fa-solid fa-dragon"></i></div> <!-- Dragon icon -->
+                        <div class="diff-content">
+                            <strong>Експерт</strong>
+                            <small>Играе като световен шампион!</small>
+                        </div>
+                        <div class="check-circle"><i class="fa-solid fa-check"></i></div>
                     </label>
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="opponent">Приятел (по желание)</label>
-                <input type="text" id="opponent" name="opponent" placeholder="въведи потребителско име, ако искаш да поканиш приятел">
+            <!-- ТЕМПО (КАПСУЛИ) -->
+            <div class="setup-section">
+                <h3 class="section-title"><i class="fa-solid fa-hourglass-start"></i> Време за мислене</h3>
+                <div class="time-scroller">
+                     {% set times = [
+                        ('unlimited', 'Без време', 'fa-infinity'),
+                        ('blitz:5+0', '5 мин', 'fa-bolt'),
+                        ('rapid:10+0', '10 мин', 'fa-stopwatch'),
+                        ('classical:30+0', '30 мин', 'fa-coffee')
+                    ] %}
+                    {% for val, label, icon in times %}
+                    <label class="time-capsule">
+                        <input type="radio" name="time_control" value="{{ val }}" {% if val == 'blitz:5+0' %}checked{% endif %}>
+                        <div class="capsule-body">
+                            <i class="fa-solid {{ icon }}"></i>
+                            <span>{{ label }}</span>
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- ПРИЯТЕЛ -->
+            <div class="setup-section friend-section">
+                 <div class="input-modern-wrapper">
+                    <i class="fa-solid fa-user-plus input-lead-icon"></i>
+                    <input type="text" id="opponent" name="opponent" placeholder="Покани приятел (по желание)...">
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="time_control">Контрол на времето</label>
-                <select id="time_control" name="time_control">
-                    <option value="unlimited">Без ограничение</option>
-                    <option value="bullet:1+0">Куршум (1 минута)</option>
-                    <option value="blitz:3+2">Блиц (3 мин + 2 сек)</option>
-                    <option value="blitz:5+0" selected>Блиц (5 мин)</option>
-                    <option value="rapid:10+5">Рапид (10 мин + 5 сек)</option>
-                    <option value="rapid:15+10">Рапид (15 мин + 10 сек)</option>
-                    <option value="classical:30+0">Класическо (30 мин)</option>
-                </select>
-            </div>
-
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary btn-large">Започни играта</button>
-                <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Назад</a>
+            <div class="setup-footer">
+                <button type="submit" class="btn btn-primary btn-mega pulse-glow">
+                    <span>СТАРТ</span>
+                    <i class="fa-solid fa-jet-fighter"></i>
+                </button>
             </div>
         </form>
     </div>
-</section>
+</div>
 {% endblock %}

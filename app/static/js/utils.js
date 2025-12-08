@@ -125,51 +125,90 @@ class GameReplay {
 }
 
 class NotificationManager {
-    static show(message, type = 'info', duration = 3000) {
+    static getContainer() {
         if (!this.container) {
-            this.container = this.createContainer();
+            this.container = document.getElementById('notifications-root');
+            if (!this.container) {
+                this.container = document.createElement('div');
+                this.container.id = 'notifications-root';
+                document.body.appendChild(this.container);
+            }
         }
+        return this.container;
+    }
+
+    static playTone() {
+        if (!this.audio) {
+            this.audio = new AudioManager();
+        }
+        this.audio.moveSound();
+    }
+
+    static show(message, type = 'info', duration = 4000, options = {}) {
+        const { actions = [], dismissible = true } = options;
+        const container = this.getContainer();
+        if (!container) return;
+
         const toast = document.createElement('div');
-        toast.className = `toast toast-${type}`;
-        toast.textContent = message;
-        this.container.appendChild(toast);
-        setTimeout(() => {
-            toast.classList.add('hide');
-            setTimeout(() => toast.remove(), 300);
-        }, duration);
+        toast.className = `notification-toast toast-${type}`;
+
+        const messageEl = document.createElement('div');
+        messageEl.className = 'notification-message';
+        messageEl.textContent = message;
+        toast.appendChild(messageEl);
+
+        if (actions.length) {
+            const actionRow = document.createElement('div');
+            actionRow.className = 'notification-actions';
+            actions.forEach((action) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = `notification-action ${action.className || 'primary'}`;
+                btn.textContent = action.label;
+                btn.addEventListener('click', () => {
+                    if (action.callback) {
+                        action.callback(btn);
+                    }
+                    if (action.dismiss !== false) {
+                        toast.remove();
+                    }
+                });
+                actionRow.appendChild(btn);
+            });
+            toast.appendChild(actionRow);
+        }
+
+        container.appendChild(toast);
+        this.playTone();
+
+        const autoHide = duration !== null && !actions.length;
+        if (autoHide) {
+            setTimeout(() => {
+                toast.classList.add('hide');
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+        if (dismissible && !actions.length) {
+            toast.addEventListener('click', () => toast.remove());
+        }
+
+        return toast;
     }
 
-    static createContainer() {
-        const container = document.createElement('div');
-        container.className = 'toast-container';
-        container.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            z-index: 999;
-            pointer-events: none;
-        `;
-        document.body.appendChild(container);
-        return container;
+    static success(message, duration = 4000, options = {}) {
+        return this.show(message, 'success', duration, options);
     }
 
-    static success(message, duration = 3000) {
-        return this.show(message, 'success', duration);
+    static error(message, duration = 4000, options = {}) {
+        return this.show(message, 'error', duration, options);
     }
 
-    static error(message, duration = 3000) {
-        return this.show(message, 'error', duration);
+    static warning(message, duration = 4000, options = {}) {
+        return this.show(message, 'warning', duration, options);
     }
 
-    static warning(message, duration = 3000) {
-        return this.show(message, 'warning', duration);
-    }
-
-    static info(message, duration = 3000) {
-        return this.show(message, 'info', duration);
+    static info(message, duration = 4000, options = {}) {
+        return this.show(message, 'info', duration, options);
     }
 }
 

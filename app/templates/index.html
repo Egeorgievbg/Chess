@@ -3,68 +3,128 @@
 {% block title %}Начало | Chess for Kids{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <div class="hero-content">
-        <p class="eyebrow">Учебна платформа за малки шахматисти</p>
-        <h1>Играй, учи и побеждавай в безопасна среда за деца.</h1>
-        <p>Chess for Kids комбинира удобен интерфейс, адаптивен AI и много образователни ресурси. Подходящо е за първи стъпки и за смели атаки срещу компютъра.</p>
-        <div class="hero-actions">
+
+<!-- HERO SECTION: Заглавната част -->
+<section class="hero-section">
+    <div class="hero-text">
+        <span class="badge-pill">🎓 За бъдещи гросмайстори</span>
+        <h1>Играй, учи и побеждавай в <span class="highlight">безопасна среда</span>.</h1>
+        <p class="hero-description">
+            Комбинация от удобен интерфейс, умен компютър и забавни уроци. 
+            Перфектното място за твоите първи стъпки и смели атаки!
+        </p>
+        
+        <div class="hero-buttons">
             {% if current_user.is_authenticated %}
-                <a href="{{ url_for('game.new_game') }}" class="btn btn-primary">Започни нова игра</a>
-                <a href="{{ url_for('main.profile') }}" class="btn btn-secondary">Моят профил</a>
+                <a href="{{ url_for('game.new_game') }}" class="btn btn-primary btn-lg shine-effect">
+                    <i class="fa-solid fa-play"></i> Нова игра
+                </a>
+                <a href="{{ url_for('main.profile') }}" class="btn btn-secondary btn-lg">
+                    <i class="fa-solid fa-user-astronaut"></i> Профил
+                </a>
             {% else %}
-                <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Създай акаунт</a>
-                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary">Вход</a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg shine-effect">
+                    <i class="fa-solid fa-rocket"></i> Създай акаунт
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-lg">
+                    <i class="fa-solid fa-right-to-bracket"></i> Вход
+                </a>
             {% endif %}
         </div>
+
+        <div class="trust-indicators">
+            <span><i class="fa-solid fa-check text-success"></i> Без реклами</span>
+            <span><i class="fa-solid fa-check text-success"></i> За деца</span>
+            <span><i class="fa-solid fa-check text-success"></i> Бърз старт</span>
+        </div>
     </div>
+
+    <!-- Визуален елемент: 3D Дъска (CSS Only) -->
     <div class="hero-visual">
-        <div class="board-preview">
-            <div class="preview-header">
-                <span class="dot dot-green"></span>
-                <span class="dot dot-yellow"></span>
-                <span class="dot dot-red"></span>
+        <div class="floating-board-container">
+            <div class="floating-board">
+                <!-- Стилизирана мини дъска -->
+                <div class="board-grid">
+                    <div class="square white"></div><div class="square black"></div>
+                    <div class="square white"></div><div class="square black"></div>
+                    <div class="square black"></div><div class="square white"></div>
+                    <div class="square black"></div><div class="square white"></div>
+                </div>
+                <!-- Фигури (икони) -->
+                <i class="fa-solid fa-chess-knight piece-knight"></i>
+                <i class="fa-solid fa-chess-king piece-king"></i>
+                <i class="fa-solid fa-chess-pawn piece-pawn"></i>
             </div>
-            <div class="preview-body">
-                <p>Пълна история на ходовете, таймери и приятелска статистика. Всичко в една страница.</p>
+            <div class="floating-card glass-card">
+                <i class="fa-solid fa-trophy text-warning"></i>
+                <div>
+                    <strong>Победа!</strong>
+                    <small>Мат в 3 хода</small>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<section class="features">
-    <h2>Какво получаваш с Chess for Kids</h2>
-    <div class="feature-grid">
+<!-- FEATURES SECTION: Предимства -->
+<section class="features-section">
+    <div class="section-header">
+        <h2>Какво получаваш?</h2>
+        <p>Всичко необходимо, за да станеш по-добър играч</p>
+    </div>
+
+    <div class="features-grid">
+        <!-- Карта 1 -->
         <article class="feature-card">
-            <div class="feature-icon">♞</div>
+            <div class="icon-wrapper icon-blue">
+                <i class="fa-solid fa-chess-board"></i>
+            </div>
             <h3>Интерактивна дъска</h3>
-            <p>Красиви теми, плавни анимации и подсказки за възможните ходове.</p>
+            <p>Красиви теми, плавни анимации и "умни" подсказки, които ти показват възможните ходове.</p>
         </article>
+
+        <!-- Карта 2 -->
         <article class="feature-card">
-            <div class="feature-icon">⚡</div>
-            <h3>Умно AI</h3>
-            <p>Три нива на трудност и реалистично забавяне, за да се чувстваш като срещу истински съперник.</p>
+            <div class="icon-wrapper icon-orange">
+                <i class="fa-solid fa-robot"></i>
+            </div>
+            <h3>Умен Приятел (AI)</h3>
+            <p>Роботът се настройва спрямо теб! Три нива на трудност, за да ти е винаги интересно.</p>
         </article>
+
+        <!-- Карта 3 -->
         <article class="feature-card">
-            <div class="feature-icon">📚</div>
-            <h3>Уроци и задания</h3>
-            <p>Шест тематични урока с примери, задачи и любопитни факти за шаха.</p>
+            <div class="icon-wrapper icon-green">
+                <i class="fa-solid fa-graduation-cap"></i>
+            </div>
+            <h3>Уроци и задачи</h3>
+            <p>Научи правилата и тайни стратегии чрез 6 интерактивни урока и забавни загадки.</p>
         </article>
+
+        <!-- Карта 4 -->
         <article class="feature-card">
-            <div class="feature-icon">🕓</div>
+            <div class="icon-wrapper icon-red">
+                <i class="fa-solid fa-stopwatch"></i>
+            </div>
             <h3>Контрол на времето</h3>
-            <p>Блиц, рапид или без ограничение – сам избираш темпото на игра.</p>
+            <p>Ти избираш темпото! Играй бърз "Блиц" или мисли спокойно без часовник.</p>
         </article>
     </div>
 </section>
 
+<!-- CTA SECTION: Призив за действие -->
 <section class="cta-section">
-    <div class="cta-card">
-        <h2>Готов ли си за нова партия?</h2>
-        <p>Регистрирай се безплатно и проследявай всяка победа, реми и загуба. Всички игри се запазват, за да можеш да ги прегледаш по-късно.</p>
-        <a href="{{ url_for('game.new_game') if current_user.is_authenticated else url_for('auth.register') }}" class="btn btn-large">
-            {{ 'Играй сега' if current_user.is_authenticated else 'Създай акаунт' }}
-        </a>
+    <div class="cta-container">
+        <div class="cta-content">
+            <h2>Готов ли си за първия ход?</h2>
+            <p>Всички игри се запазват автоматично. Влез в историята и виж къде си сгрешил или как си победил!</p>
+        </div>
+        <div class="cta-action">
+            <a href="{{ url_for('game.new_game') if current_user.is_authenticated else url_for('auth.register') }}" class="btn btn-white btn-lg">
+                {{ 'Играй сега' if current_user.is_authenticated else 'Започни безплатно' }} <i class="fa-solid fa-arrow-right"></i>
+            </a>
+        </div>
     </div>
 </section>
+
 {% endblock %}

@@ -44,6 +44,8 @@ def main():
     try:
         # Add user.board_theme
         changed |= ensure_column(cur, 'user', 'board_theme', "VARCHAR(30) DEFAULT 'classic'")
+        changed |= ensure_column(cur, 'user', 'last_seen', "DATETIME")
+        changed |= ensure_column(cur, 'user', 'sid', "VARCHAR(120)")
 
         # Add game.opponent_id
         changed |= ensure_column(cur, 'game', 'opponent_id', 'INTEGER')
@@ -62,6 +64,7 @@ def main():
         changed |= ensure_column(cur, 'game', 'white_score', 'INTEGER DEFAULT 0')
         changed |= ensure_column(cur, 'game', 'black_score', 'INTEGER DEFAULT 0')
         changed |= ensure_column(cur, 'game', 'redo_stack', "TEXT DEFAULT ''")
+        changed |= ensure_column(cur, 'game', 'is_multiplayer_online', "BOOLEAN DEFAULT 0")
 
         # Friend request table
         changed |= ensure_table(cur, 'friend_request', """
@@ -77,11 +80,27 @@ def main():
         )
         """)
 
+        changed |= ensure_table(cur, 'notification', """
+        CREATE TABLE notification (
+            id INTEGER PRIMARY KEY,
+            user_id INTEGER NOT NULL,
+            type VARCHAR(50) NOT NULL,
+            message TEXT NOT NULL,
+            data TEXT DEFAULT '{}',
+            is_read INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY(user_id) REFERENCES user(id)
+        )
+        """)
         if changed:
             conn.commit()
             print('Database updated successfully.')
         else:
             print('No changes needed.')
+
+        # Ensure last_seen is populated for existing users
+        cur.execute("UPDATE user SET last_seen = CURRENT_TIMESTAMP WHERE last_seen IS NULL")
+        conn.commit()
     except Exception as e:
         print('Error:', e)
         conn.rollback()

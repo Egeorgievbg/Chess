@@ -1,0 +1,451 @@
+/* lesson01.css - Mobile Perfect Version */
+
+:root {
+    /* Brand Colors */
+    --brand-brown: #5d4037;
+    --brand-beige: #f5f0e6;
+    --brand-accent: #8d6e63;
+    
+    /* UI Colors */
+    --bg-page: #faf9f6;
+    --white: #ffffff;
+    --text-dark: #2c1810;
+    --text-light: #6d5d55;
+    
+    /* Functional */
+    --success: #4caf50;
+    --error: #ef5350;
+    --primary-gradient: linear-gradient(135deg, #8d6e63 0%, #5d4037 100%);
+    --sq-light: #f0d9b5;
+    --sq-dark: #b58863;
+}
+
+/* GLOBAL RESET - Много важно за да не се чупи лейаута */
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--bg-page);
+    font-family: 'Nunito', sans-serif;
+    color: var(--text-dark);
+    margin: 0;
+    overflow-x: hidden; /* Спира хоризонталния скрол на страницата */
+}
+
+/* --- LAYOUT STRUCTURE --- */
+.lesson-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem;
+}
+
+/* --- HERO SECTION --- */
+.lesson-hero {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 2.5rem auto;
+    padding: 0 1rem;
+}
+
+.badge-pill {
+    display: inline-block;
+    background: #e3f2fd;
+    color: #1565c0;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 800;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.lesson-hero h1 {
+    font-size: 2.8rem; /* Desktop size */
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    color: var(--brand-brown);
+}
+
+.highlight {
+    color: #ff8f00;
+    position: relative;
+    display: inline-block;
+}
+
+.highlight::after {
+    content: '';
+    position: absolute; bottom: 5px; left: 0; width: 100%; height: 12px;
+    background: rgba(255, 143, 0, 0.2); z-index: -1; border-radius: 4px;
+}
+
+.hero-desc {
+    font-size: 1.2rem;
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+/* --- MAIN GRID --- */
+.lesson-grid {
+    display: grid;
+    /* На Desktop: Лява колона (гъвкава) | Дясна колона (фиксирана ширина) */
+    grid-template-columns: 1fr 400px; 
+    gap: 2.5rem;
+    align-items: start;
+}
+
+/* --- THEORY COLUMN (LEFT) --- */
+.theory-column {
+    min-width: 0; /* Prevent grid blowout */
+}
+
+.section-title {
+    display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;
+}
+
+.section-title h2, .rules-box h2 {
+    font-size: 1.6rem; font-weight: 800; color: var(--brand-brown); margin: 0;
+}
+
+/* Cards Scroller */
+.cards-scroller {
+    display: flex; 
+    gap: 1rem; 
+    overflow-x: auto; 
+    padding: 0.5rem 0.5rem 2rem 0.5rem;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    scrollbar-width: none; /* Hide scrollbar Firefox */
+}
+.cards-scroller::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome */
+
+.chess-card {
+    flex: 0 0 180px; /* Fixed width for cards */
+    scroll-snap-align: center;
+    background: var(--white);
+    border-radius: 20px;
+    padding: 1rem;
+    border: 2px solid transparent;
+    box-shadow: 0 8px 20px rgba(93, 64, 55, 0.08);
+    transition: transform 0.2s ease;
+}
+
+.chess-card:hover { transform: translateY(-5px); border-color: #ffcc80; }
+
+.card-top { display: flex; justify-content: space-between; margin-bottom: 0.8rem; }
+.power-badge { background: #fff3e0; color: #ef6c00; font-weight: 800; padding: 0.2rem 0.5rem; border-radius: 8px; font-size: 0.75rem; }
+.icon-circle { font-size: 2rem; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; background: #f5f5f5; border-radius: 50%; color: var(--brand-brown); }
+.card-body h3 { font-size: 1.1rem; margin: 0 0 0.4rem 0; color: var(--brand-brown); }
+.card-body p { font-size: 0.85rem; color: var(--text-light); margin: 0; line-height: 1.35; }
+
+/* Rules & Wrapup */
+.rules-box {
+    margin-top: 2rem; background: #fffdf0; border-radius: 20px; padding: 1.5rem; border: 2px dashed #ffe082;
+}
+.checklist { list-style: none; padding: 0; margin-top: 1rem; }
+.checklist li { display: flex; gap: 0.8rem; margin-bottom: 0.8rem; font-weight: 600; color: var(--text-dark); line-height: 1.4; }
+.check-icon { color: #2e7d32; flex-shrink: 0; margin-top: 2px; }
+
+.lesson-wrapup {
+    margin-top: 2rem; padding: 1.5rem; border-radius: 20px;
+    background: linear-gradient(180deg, rgba(245, 240, 230, 0.9), #ffffff);
+    border: 1px solid rgba(93, 64, 55, 0.08);
+}
+
+.placement-section {
+    margin-top: 2rem;
+    padding: 1.4rem;
+    border-radius: 22px;
+    background: #fff;
+    border: 1px solid rgba(93, 64, 55, 0.08);
+    box-shadow: 0 12px 25px rgba(0,0,0,0.04);
+}
+
+.placement-section h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: var(--brand-brown);
+}
+
+.placement-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0.8rem;
+    margin-top: 1rem;
+}
+
+.placement-card {
+    border-radius: 16px;
+    padding: 0.9rem 1rem;
+    background: #fdfdf9;
+    border: 1px solid rgba(93, 64, 55, 0.1);
+    display: flex;
+    gap: 0.7rem;
+    align-items: center;
+}
+
+.placement-symbol {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: rgba(255, 183, 77, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.placement-card h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--brand-brown);
+}
+
+.placement-card p {
+    margin: 0;
+    color: #5c4c3f;
+    font-size: 0.9rem;
+}
+
+.placement-note {
+    margin-top: 0.9rem;
+    font-style: italic;
+    color: #9c7b61;
+}
+
+/* --- GAME COLUMN (RIGHT) --- */
+.practice-column {
+    /* На десктоп е втора колона, но в HTML е първа. 
+       Тук казваме "отиди вдясно" чрез order */
+    order: 2; 
+}
+/* Връщаме теорията вляво */
+.theory-column { order: 1; }
+
+.sticky-game-container { 
+    position: sticky; 
+    top: 1rem; 
+    z-index: 10; 
+}
+
+.game-card {
+    background: var(--white);
+    border-radius: 24px;
+    padding: 1.25rem;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.game-header { text-align: center; width: 100%; }
+.mission-badge { display: inline-block; background: var(--brand-brown); color: white; padding: 0.3rem 1rem; border-radius: 20px; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; margin-bottom: 0.5rem; }
+.pulse-text { font-weight: 700; color: var(--text-dark); font-size: 1rem; margin: 0; }
+
+/* BOARD - RESPONSIVE MAGIC */
+.board-wrapper {
+    width: 100%;
+    max-width: 350px; /* Max size on desktop */
+    aspect-ratio: 1 / 1;
+    display: flex; justify-content: center;
+    margin: 0 auto;
+}
+.board-border {
+    width: 100%; height: 100%; padding: 8px; background: #5d4037; border-radius: 12px;
+    position: relative;
+}
+.chess-grid {
+    display: grid; grid-template-columns: repeat(8, 1fr); grid-template-rows: repeat(8, 1fr);
+    width: 100%; height: 100%; background-color: #5d4037; border-radius: 4px; overflow: hidden;
+}
+.square {
+    width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; 
+    cursor: pointer; position: relative;
+    /* Важно за мобилни */
+    -webkit-tap-highlight-color: transparent;
+}
+.square.allowed {
+    box-shadow: inset 0 0 0 4px rgba(255, 235, 205, 0.85);
+}
+.square.selected-piece {
+    outline: 4px solid #ffb74d;
+    outline-offset: -4px;
+}
+.square.light { background-color: var(--sq-light); }
+.square.dark { background-color: var(--sq-dark); }
+.square.active-drop { box-shadow: inset 0 0 0 3px #4caf50; }
+
+.square img { 
+    width: 85%; height: 85%; 
+    filter: drop-shadow(0 4px 2px rgba(0,0,0,0.2)); 
+    pointer-events: none; user-select: none;
+    will-change: transform; /* Performance optimized */
+}
+
+/* CONTROLS */
+.controls { width: 100%; display: flex; flex-direction: column; gap: 0.8rem; }
+.piece-selector { 
+    display: grid; 
+    grid-template-columns: repeat(4, 1fr); /* 4 на ред е по-добре за десктоп */
+    gap: 0.5rem; 
+    padding: 0.6rem; 
+    background: #f5f5f5; border-radius: 16px; 
+}
+.piece-btn {
+    width: 100%; aspect-ratio: 1; border: none; background: white; border-radius: 12px; 
+    display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s; padding: 0;
+}
+.piece-btn img { width: 60%; height: 60%; object-fit: contain; }
+.piece-btn .piece-name { display: none; } /* Скриваме имената за по-чист вид */
+.piece-btn.active { background: #ffe0b2; border: 2px solid #ff9800; transform: scale(0.95); }
+
+.actions { display: flex; gap: 0.5rem; }
+.btn-primary, .btn-success, .btn-icon {
+    border: none; border-radius: 14px; cursor: pointer; font-weight: 800; display: flex; align-items: center; justify-content: center; gap: 0.4rem; transition: transform 0.1s;
+}
+.btn-primary { flex: 1; background: var(--primary-gradient); color: white; padding: 0.8rem; font-size: 0.95rem; box-shadow: 0 6px 12px rgba(93, 64, 55, 0.25); }
+.btn-success { flex: 1; background: #66bb6a; color: white; padding: 0.8rem; }
+.btn-icon { width: 48px; background: #eceff1; color: #546e7a; font-size: 1.1rem; }
+.btn-primary:active, .btn-icon:active { transform: scale(0.96); }
+
+.feedback-toast { text-align: center; font-weight: 700; height: 20px; font-size: 0.9rem; margin-top: 0.2rem; }
+.hidden { display: none !important; }
+
+.board-axis {
+    position: absolute;
+    font-size: 0.7rem;
+    color: #fef1c9;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+.board-axis {
+    padding: 0 4px;
+    border-radius: 6px;
+    background: rgba(93, 64, 55, 0.75);
+}
+
+.board-axis.board-axis-files {
+    bottom: -14px;
+    left: 32px;
+    right: 32px;
+    display: flex;
+    justify-content: space-between;
+    letter-spacing: 0.2em;
+}
+
+.board-axis.board-axis-ranks {
+    top: 18px;
+    bottom: 18px;
+    left: -14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.board-wrapper.shake,
+.chess-grid.shake {
+    animation: boardShake 0.2s;
+}
+
+@keyframes boardShake {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    50% { transform: translateX(4px); }
+    75% { transform: translateX(-2px); }
+    100% { transform: translateX(0); }
+}
+
+/* -------------------------------------------------- */
+/* MEDIA QUERIES - ТУК Е МАГИЯТА ЗА ТАБЛЕТИ И МОБИЛНИ */
+/* -------------------------------------------------- */
+
+/* Таблети и малки лаптопи (под 1024px) */
+@media (max-width: 1024px) {
+    .lesson-grid {
+        grid-template-columns: 1fr; /* Една колона */
+        gap: 2rem;
+    }
+
+    /* На таблет/мобилен: Играта отива веднага след Заглавието */
+    .practice-column {
+        order: -1; /* Избутваме играта най-горе в грида */
+        margin-bottom: 1rem;
+    }
+    
+    .theory-column {
+        order: 2;
+    }
+
+    /* Махаме sticky, защото на мобилен скролваме цялата страница */
+    .sticky-game-container {
+        position: static;
+    }
+
+    .game-card {
+        max-width: 500px; /* Ограничаваме ширината да не става гигантска */
+        margin: 0 auto; /* Центрираме */
+    }
+    
+    .piece-selector {
+        grid-template-columns: repeat(6, 1fr); /* Повече фигури на ред */
+    }
+}
+
+/* Мобилни телефони (под 600px) */
+@media (max-width: 600px) {
+    .lesson-hero h1 {
+        font-size: 2rem; /* По-малък шрифт */
+    }
+    
+    .lesson-wrapper {
+        padding: 1rem 0.5rem;
+    }
+
+    .cards-scroller {
+        padding-bottom: 1rem;
+    }
+    
+    .chess-card {
+        flex: 0 0 160px; /* Малко по-тесни карти */
+    }
+
+    /* Играта да заема почти целия екран */
+    .game-card {
+        width: 100%;
+        max-width: 100%;
+        padding: 1rem;
+        border-radius: 16px;
+    }
+
+    .board-wrapper {
+        max-width: 100%; /* Пълна ширина */
+    }
+    
+    .piece-selector {
+        grid-template-columns: repeat(5, 1fr); /* 5 на ред на мобилен */
+        gap: 0.3rem;
+    }
+
+    .actions {
+        flex-direction: row; /* Запазваме бутоните на един ред */
+    }
+    
+    .btn-primary {
+        font-size: 0.9rem;
+        padding: 0.7rem;
+    }
+}
+
+/* Много малки телефони (iPhone SE, Fold) */
+@media (max-width: 360px) {
+    .piece-selector {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    .lesson-hero h1 {
+        font-size: 1.6rem;
+    }
+}

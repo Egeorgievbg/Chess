@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}Урок 2: Законите на Шаха{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lessons/lesson01.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lessons/lesson02.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="lesson-wrapper">
+    <div class="lesson-grid">
+        <main class="theory-column">
+            <header class="lesson-hero">
+                <div class="badge-pill">Урок №2</div>
+                <h1>Познай правилата на фигурите</h1>
+                <p class="hero-desc">
+                    Всеки ход има добри и лоши страни. Тук ще опишем кои движения са позволени, какво означава шах и как да четеш позицията, за да не попаднеш в капан.
+                </p>
+            </header>
+
+            <section class="cards-section">
+                <div class="section-title">
+                    <h2>Примери от дъската</h2>
+                    <span class="hint-text">Кой герой какво прави <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+                <div class="cards-scroller">
+                    {% for example in lesson_examples %}
+                    <div class="chess-card">
+                        <div class="card-inner">
+                            <div class="card-top">
+                                <span class="power-badge">⚡ {{ example.squares|length }} хода</span>
+                                <div class="icon-circle">
+                                    <span class="chess-icon">{{ example.symbol }}</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h3>{{ example.title }}</h3>
+                                <p>{{ example.description }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="rules-box">
+                <h2>Три закона, които пазят реда</h2>
+                <ul class="checklist">
+                    {% for highlight in lesson_highlights %}
+                    <li>
+                        <div class="check-icon"><i class="fa-solid fa-check"></i></div>
+                        <span>{{ highlight }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="lesson-wrapup">
+                <h2>Какво запомняме</h2>
+                {% for section in lesson_story %}
+                <p>{{ section.text }}</p>
+                {% endfor %}
+                <p class="lesson-wrapup-note">
+                    След урока можеш да поставиш фигурите и да провериш дали си ги поставил по правилата.
+                </p>
+            </section>
+        </main>
+
+        <aside class="practice-column">
+            <div class="sticky-game-container">
+                <div class="game-card">
+                    <div class="game-header">
+                        <div class="mission-badge">🎯 Задача</div>
+                        <p id="instructionText" class="pulse-text">Избери фигура и я постави в квадрат, който показва правилното движение.</p>
+                    </div>
+
+                    <div class="board-wrapper">
+                        <div class="board-border">
+                            <div id="gameBoard" class="chess-grid">
+                                {% set files = 'abcdefgh' %}
+                                {% for rank in range(8, 0, -1) %}
+                                    {% for file_index in range(0, 8) %}
+                                        {% set file = files[file_index:file_index+1] %}
+                                        {% set square = file ~ rank %}
+                                        {% set light = ((file_index + rank) % 2 == 0) %}
+                                        <div class="square {% if light %}light{% else %}dark{% endif %}"
+                                             data-square="{{ square }}"
+                                             data-target="{{ lesson_positions.get(square, '') }}">
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <div class="piece-selector" id="piecePalette">
+                            {% for piece in lesson_palette %}
+                            <button type="button" class="piece-btn" data-piece="{{ piece.code }}" aria-label="{{ piece.name }}">
+                                <img src="{{ url_for('static', filename='img/pieces/' + piece.code + '.svg') }}" alt="{{ piece.name }}">
+                                <span class="piece-name">{{ piece.name }}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+                        <div class="actions">
+                            <button type="button" id="resetBtn" class="btn-icon" title="Изчисти дъската">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                            <button type="button" id="checkBtn" class="btn-primary">
+                                Проверка <i class="fa-solid fa-check"></i>
+                            </button>
+                            <a href="{{ url_for('game.new_game') }}?lesson=02" class="btn-success">
+                                Готов съм <i class="fa-solid fa-rocket"></i>
+                            </a>
+                        </div>
+                        <div id="feedbackMessage" class="feedback-toast"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    window.LESSON_TARGETS = {{ lesson_positions|tojson }};
+    window.LESSON_EXAMPLES = {{ lesson_examples|tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/lesson02.js') }}"></script>
+{% endblock %}

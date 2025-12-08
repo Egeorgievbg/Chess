@@ -1,21 +1,48 @@
-﻿document.addEventListener('DOMContentLoaded', () => {
-    if (typeof gameId === 'undefined' || typeof playerColor === 'undefined') {
-        console.error('Липсва мета информация за играта.');
+﻿let resolvedGameConfig = null;
+
+const getResolvedGameConfig = () => {
+    if (resolvedGameConfig) return resolvedGameConfig;
+    if (typeof window !== 'undefined' && window.gameConfig) {
+        resolvedGameConfig = window.gameConfig;
+        return resolvedGameConfig;
+    }
+    if (typeof gameConfig !== 'undefined') {
+        resolvedGameConfig = gameConfig;
+        return resolvedGameConfig;
+    }
+    return null;
+};
+
+const getActiveGameId = () => window.chessGame?.gameId || getResolvedGameConfig()?.id || getResolvedGameConfig()?.gameId;
+
+document.addEventListener('DOMContentLoaded', () => {
+    const config = getResolvedGameConfig();
+    if (!config) {
+        console.error('Game configuration is missing.');
+        return;
+    }
+
+    const gameIdentifier = config.id ?? config.gameId ?? config.game_id;
+    const playerColor = config.playerColor ?? config.player_color;
+    if (!gameIdentifier || !playerColor) {
+        console.error('Required game data is missing.');
         return;
     }
 
     window.chessGame = new ChessGame({
-        gameId,
+        gameId: gameIdentifier,
         playerColor,
-        boardTheme: typeof boardTheme === 'string' ? boardTheme : 'classic',
-        isMultiplayer: Boolean(isMultiplayer),
-        initialStatus: typeof initialGameStatus === 'string' ? initialGameStatus : 'active'
+        boardTheme: config.boardTheme ?? config.board_theme ?? 'classic',
+        isMultiplayer: Boolean(config.isMultiplayer),
+        isOnlineMultiplayer: Boolean(config.isOnlineMultiplayer),
+        initialStatus: config.status ?? 'active'
     });
 
     bindUiControls();
     setupLeaveModal();
     attachBeforeUnload();
 });
+
 
 function bindUiControls() {
     const btnResign = document.getElementById('resignBtn');
@@ -89,13 +116,16 @@ function setupLeaveModal() {
     };
 
     const shouldIntercept = (link) => {
+        const currentId = getActiveGameId();
+        if (!currentId) return false;
         if (!window.chessGame?.isGameActive()) return false;
         if (!link || !link.href) return false;
         if (link.dataset.ignoreLeave === 'true') return false;
         if (link.getAttribute('href').startsWith('#')) return false;
-        if (link.href.includes(`/game/${gameId}`)) return false;
+        if (link.href.includes(`/game/${currentId}`)) return false;
         return true;
     };
+
 
     document.querySelectorAll('a[href]').forEach((link) => {
         link.addEventListener('click', (event) => {
@@ -124,20 +154,21 @@ function setupLeaveModal() {
 
 function attachBeforeUnload() {
     window.addEventListener('beforeunload', () => {
-        if (window.chessGame && window.chessGame.isGameActive()) {
-            const snapshot = window.chessGame.buildTimeSnapshot?.();
-            const payload = JSON.stringify({ time_snapshot: snapshot });
-            if (navigator.sendBeacon) {
-                const blob = new Blob([payload], { type: 'application/json' });
-                navigator.sendBeacon(`/game/${gameId}/leave`, blob);
-            } else {
-                fetch(`/game/${gameId}/leave`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: payload,
-                    keepalive: true
-                });
-            }
+        const currentId = getActiveGameId();
+        if (!currentId || !window.chessGame?.isGameActive()) return;
+        const snapshot = window.chessGame.buildTimeSnapshot?.();
+        const payload = JSON.stringify({ time_snapshot: snapshot });
+        if (navigator.sendBeacon) {
+            const blob = new Blob([payload], { type: 'application/json' });
+            navigator.sendBeacon(`/game/${currentId}/leave`, blob);
+        } else {
+            fetch(`/game/${currentId}/leave`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: payload,
+                keepalive: true
+            });
         }
     });
 }
+

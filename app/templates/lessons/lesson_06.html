@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Урок 6: Легенди и Факти{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lessons/lesson06.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="lesson-stub">
+    <div class="lesson-stub-card">
+        <span class="lesson-stub-tag">🏆 Урок №6</span>
+        <h1>Легенди и Факти</h1>
+        <p>Ще споделим истории за велики шампиони, любопитни факти и вдъхновение. Съдържанието ще бъде готово скоро.</p>
+        <div class="lesson-stub-actions">
+            <a href="{{ url_for('main.lessons') }}" class="btn btn-secondary">Върни се към уроците</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

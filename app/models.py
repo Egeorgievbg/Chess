@@ -9,9 +9,12 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password_hash = db.Column(db.String(200), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    games = db.relationship('Game', backref='player', lazy=True, foreign_keys='Game.player_id')
+    last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    sid = db.Column(db.String(120))
     board_theme = db.Column(db.String(30), default='classic')
-    
+    games = db.relationship('Game', backref='player', lazy=True, foreign_keys='Game.player_id')
+    notifications = db.relationship('Notification', backref='recipient', lazy='dynamic')
+
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
     
@@ -41,6 +44,7 @@ class Game(db.Model):
     redo_stack = db.Column(db.Text, default='')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    is_multiplayer_online = db.Column(db.Boolean, default=False)
     
 class Lesson(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -68,4 +72,14 @@ class FriendRequest(db.Model):
 
     sender = db.relationship('User', foreign_keys=[sender_id], backref='sent_requests')
     receiver = db.relationship('User', foreign_keys=[receiver_id], backref='received_requests')
+
+
+class Notification(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    type = db.Column(db.String(50), nullable=False)
+    message = db.Column(db.String(255), nullable=False)
+    data = db.Column(db.JSON, default=dict)
+    is_read = db.Column(db.Boolean, default=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 

@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Урок 1: Героите на дъската | Шах от Ивчо{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lessons/lesson01.css') }}">
+{% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+<div class="lesson-wrapper">
+    
+    <!-- ЗАГЛАВИЕ (HERO) - Извадено най-горе за по-добра мобилна структура -->
+    <header class="lesson-hero">
+        <div class="badge-pill">🎓 Урок №1</div>
+        <h1>Запознай се с <span class="highlight">Героите</span></h1>
+        <p class="hero-desc">
+            Всяка фигура е уникален войник със своя суперсила. 
+            Разбери кой колко "тежи", преди да влезеш в битка!
+        </p>
+    </header>
+
+    <div class="lesson-grid">
+        <!-- ДЯСНА КОЛОНА: Практика (Играта) 
+             Слагаме я първа в HTML кода, но с CSS ще я пратим вдясно на десктоп.
+             На мобилен това гарантира, че играта е лесно достъпна. -->
+        <aside class="practice-column">
+            <div class="sticky-game-container">
+                <div class="game-card">
+                    <div class="game-header">
+                        <div class="mission-badge">🎯 Твоята Мисия</div>
+                        <p id="instructionText" class="pulse-text">Избери фигура и я сложи на мястото ѝ!</p>
+                    </div>
+
+                    <div class="board-wrapper">
+                        <div class="board-border">
+                            <div class="board-axis board-axis-ranks">
+                                {% for rank in range(8, 0, -1) %}
+                                <span>{{ rank }}</span>
+                                {% endfor %}
+                            </div>
+                            <div id="gameBoard" class="chess-grid">
+                                {% set files = 'abcdefgh' %}
+                                {% for rank in range(8, 0, -1) %}
+                                    {% for file_index in range(0, 8) %}
+                                        {% set file = files[file_index:file_index+1] %}
+                                        {% set square = file ~ rank %}
+                                        {% set light = ((file_index + rank) % 2 == 0) %}
+                                        <div class="square {% if light %}light{% else %}dark{% endif %}"
+                                            data-square="{{ square }}"
+                                            data-target="{{ lesson_positions.get(square, '') }}">
+                                        </div>
+                                    {% endfor %}
+                                {% endfor %}
+                            </div>
+                            <div class="board-axis board-axis-files">
+                                {% for file in files %}
+                                <span>{{ file }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <div class="piece-selector" id="piecePalette">
+                            {% for piece in lesson_palette %}
+                            <button type="button" class="piece-btn" data-piece="{{ piece.code }}" aria-label="{{ piece.name }}">
+                                <img src="{{ url_for('static', filename='img/pieces/' + piece.code + '.svg') }}" alt="{{ piece.name }}">
+                                <span class="piece-name">{{ piece.name }}</span>
+                            </button>
+                            {% endfor %}
+                        </div>
+
+                        <div class="actions">
+                            <button type="button" id="resetBtn" class="btn-icon" title="Изчисти дъската">
+                                <i class="fa-solid fa-rotate-left"></i>
+                            </button>
+                            <button type="button" id="checkBtn" class="btn-primary">
+                                Готов съм! <i class="fa-solid fa-rocket"></i>
+                            </button>
+                            <a href="{{ url_for('game.new_game') }}?lesson=01" id="nextLessonBtn" class="btn-success hidden">
+                                Играй с AI <i class="fa-solid fa-gamepad"></i>
+                            </a>
+                        </div>
+                        <div id="feedbackMessage" class="feedback-toast"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- ЛЯВА КОЛОНА: Теория -->
+        <main class="theory-column">
+            <!-- Секция: Колекция Фигури -->
+            <section class="cards-section">
+                <div class="section-title">
+                    <h2>👑 Колекция Фигури</h2>
+                    <span class="hint-text">Плъзни <i class="fa-solid fa-arrow-right"></i></span>
+                </div>
+                
+                <div class="cards-scroller">
+                    {% for figure in figures %}
+                    <div class="chess-card card-{{ figure.symbol|lower }}">
+                        <div class="card-inner">
+                            <div class="card-top">
+                                <span class="power-badge">⚡ {{ figure.points }} т.</span>
+                                <div class="icon-circle">
+                                    <span class="chess-icon">{{ figure.symbol }}</span>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h3>{{ figure.name }}</h3>
+                                <p>{{ figure.hint }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="placement-section">
+                <h2>Къде стои всеки герой</h2>
+                <div class="placement-grid">
+                    {% for figure in figures %}
+                    <article class="placement-card">
+                        <div class="placement-symbol">{{ figure.symbol }}</div>
+                        <div>
+                            <h3>{{ figure.name }}</h3>
+                            <p>{{ figure.home }}</p>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+                <p class="placement-note">
+                    Тези позиции са началната редица – запомни ги и използвай подсказките като аргумент преди да направиш проверката.
+                </p>
+            </section>
+
+            <!-- Секция: Правила -->
+            <section class="rules-box">
+                <h2>💡 Тайни на майстора</h2>
+                <ul class="checklist">
+                    {% for tip in lesson_tips %}
+                    <li>
+                        <div class="check-icon"><i class="fa-solid fa-check"></i></div>
+                        <span>{{ tip }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section class="lesson-wrapup">
+                <h2>Какво научихме?</h2>
+                <p>Досега знаем, че всяка фигура има свой обхват и цел. Щом видиш позиция, питай се: кой герой води атаката и кой пази краля?</p>
+                <div class="lesson-wrapup-points">
+                    <span>Белите пазят центъра.</span>
+                    <span>Черните реагират с коне и слонове.</span>
+                </div>
+                <p class="lesson-wrapup-note">Готов ли си за следващото ниво?</p>
+            </section>
+        </main>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    window.LESSON_TARGETS = {{ lesson_positions|tojson }};
+    window.LESSON_MODE = 'arrange';
+</script>
+<script src="{{ url_for('static', filename='js/lesson01.js') }}"></script>
+{% endblock %}

@@ -1,10 +1,20 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
+from flask_socketio import SocketIO
+import importlib
 import os
 
 db = SQLAlchemy()
 login_manager = LoginManager()
+
+try:
+    import gevent  # noqa: F401
+    _async_mode = 'gevent'
+except ImportError:
+    _async_mode = 'threading'
+
+socketio = SocketIO(cors_allowed_origins="*", async_mode=_async_mode)
 
 def create_app():
     app = Flask(__name__)
@@ -17,6 +27,7 @@ def create_app():
     
     # Initialize extensions
     db.init_app(app)
+    socketio.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
     
@@ -32,5 +43,7 @@ def create_app():
     # Create tables
     with app.app_context():
         db.create_all()
-    
+        # Register socket events after extensions are ready
+        importlib.import_module('app.socket_events')  # noqa: F401
+
     return app

@@ -3,38 +3,125 @@
 {% block title %}Уроци | Chess for Kids{% endblock %}
 
 {% block content %}
-<section class="lessons-section">
+<section class="lessons-page">
+    <!-- Header -->
     <div class="section-header">
-        <p class="eyebrow">Учебна зона</p>
-        <h1>Шест кратки урока, които детето може да следва самостоятелно.</h1>
-        <p>Всеки урок завършва с мини задача или съвет за допълнителна практика.</p>
+        <span class="badge-pill">🎓 Академия</span>
+        <h1>Учи и стани по-добър</h1>
+        <p>Пътека от 6 стъпки, която ще те превърне от начинаещ в истински стратег.</p>
     </div>
 
-    <div class="lesson-grid">
-        <article>
-            <h3>1. Запознанство с фигурите</h3>
-            <p>Имена, стойности и начални позиции. Лесни мнемоники за запомняне.</p>
+    <!-- Lessons Grid -->
+    <div class="lessons-grid">
+        
+        <!-- Урок 1: Основи -->
+        <article class="lesson-card color-blue">
+            <div class="card-top">
+                <span class="lesson-number">01</span>
+                <span class="lesson-tag">Начало</span>
+            </div>
+            <div class="card-icon">
+                <i class="fa-solid fa-chess-knight"></i>
+            </div>
+            <div class="card-content">
+                <h3>Фигурите и техните сили</h3>
+                <p>Научи имената, точките и началните позиции. Лесни трикове за запомняне.</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('main.lesson_intro') }}" class="btn-lesson">Започни <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
         </article>
-        <article>
-            <h3>2. Основни правила</h3>
-            <p>Ход на фигурите, шах/мат, равенства и специални ходове като рокада.</p>
+
+        <!-- Урок 2: Правила -->
+        <article class="lesson-card color-green">
+            <div class="card-top">
+                <span class="lesson-number">02</span>
+                <span class="lesson-tag">Правила</span>
+            </div>
+            <div class="card-icon">
+                <i class="fa-solid fa-scroll"></i>
+            </div>
+            <div class="card-content">
+                <h3>Законите на Шаха</h3>
+                <p>Как се местят фигурите, какво е "шах" и "мат", и специални ходове като рокада.</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('main.lesson_rules') }}" class="btn-lesson">Започни <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
         </article>
-        <article>
-            <h3>3. Тактики за начинаещи</h3>
-            <p>Вилици, открити атаки и защита на важните полета.</p>
+
+        <!-- Урок 3: Тактики -->
+        <article class="lesson-card color-orange">
+            <div class="card-top">
+                <span class="lesson-number">03</span>
+                <span class="lesson-tag">Атака</span>
+            </div>
+            <div class="card-icon">
+                <i class="fa-solid fa-bolt"></i>
+            </div>
+            <div class="card-content">
+                <h3>Магии и Тактики</h3>
+                <p>Научи се да правиш "Вилица", "Шиш" и как да атакуваш две фигури едновременно.</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('main.lesson_tactics') }}" class="btn-lesson">Започни <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
         </article>
-        <article>
-            <h3>4. Как да планираме</h3>
-            <p>Център, развитие и безопасност на царя – обяснено с картинки.</p>
+
+        <!-- Урок 4: Стратегия -->
+        <article class="lesson-card color-purple">
+            <div class="card-top">
+                <span class="lesson-number">04</span>
+                <span class="lesson-tag">Мислене</span>
+            </div>
+            <div class="card-icon">
+                <i class="fa-solid fa-map-location-dot"></i>
+            </div>
+            <div class="card-content">
+                <h3>План за победа</h3>
+                <p>Защо центърът е важен? Къде да скрием царя? Стратегия за умни деца.</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('main.lesson_strategy') }}" class="btn-lesson">Започни <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
         </article>
-        <article>
-            <h3>5. Малки задачи</h3>
-            <p>Практически упражнения, които могат да се решават директно на дъската.</p>
+
+        <!-- Урок 5: Задачи -->
+        <article class="lesson-card color-red">
+            <div class="card-top">
+                <span class="lesson-number">05</span>
+                <span class="lesson-tag">Практика</span>
+            </div>
+            <div class="card-icon">
+                <i class="fa-solid fa-puzzle-piece"></i>
+            </div>
+            <div class="card-content">
+                <h3>Шахматни Загадки</h3>
+                <p>Реши тези малки задачи, за да провериш дали си разбрал всичко дотук.</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('main.lesson_puzzles') }}" class="btn-lesson">Започни <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
         </article>
-        <article>
-            <h3>6. Интересни факти</h3>
-            <p>История на шаха, шампиони и любопитни предизвикателства за домашна работа.</p>
+
+        <!-- Урок 6: Любопитно -->
+        <article class="lesson-card color-gold">
+            <div class="card-top">
+                <span class="lesson-number">06</span>
+                <span class="lesson-tag">Бонус</span>
+            </div>
+            <div class="card-icon">
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <div class="card-content">
+                <h3>Легенди и Факти</h3>
+                <p>История на най-великите играчи и любопитни факти за древната игра.</p>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('main.lesson_bonus') }}" class="btn-lesson">Започни <i class="fa-solid fa-arrow-right"></i></a>
+            </div>
         </article>
+
     </div>
 </section>
 {% endblock %}

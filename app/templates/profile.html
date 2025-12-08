@@ -1,192 +1,269 @@
 ﻿{% extends "base.html" %}
 
-{% block title %}Моят профил | Chess for Kids{% endblock %}
+{% block title %}Профил на {{ current_user.username }} | Chess for Kids{% endblock %}
 
 {% block content %}
-<section class="profile-section">
-    <h1>Моят профил</h1>
-
-    <div class="settings-grid">
-        <div class="settings-card">
-            <h3>Тема на дъската</h3>
-            <form method="POST" class="settings-form">
-                <input type="hidden" name="action" value="update_theme">
-                <label>
-                    <span>Избери любима тема</span>
-                    <select name="board_theme">
-                        <option value="classic" {% if current_user.board_theme == 'classic' %}selected{% endif %}>Класическа</option>
-                        <option value="green" {% if current_user.board_theme == 'green' %}selected{% endif %}>Горска</option>
-                        <option value="blackwhite" {% if current_user.board_theme == 'blackwhite' %}selected{% endif %}>Черно-бяла</option>
-                    </select>
-                </label>
-                <button type="submit" class="btn btn-primary">Запази</button>
-            </form>
+<div class="profile-container">
+    
+    <!-- 1. HEADER: Лична карта на играча -->
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fa-solid fa-chess-king"></i>
         </div>
-
-        <div class="settings-card">
-            <h3>Акаунт</h3>
-            <p><strong>Потребител:</strong> {{ current_user.username }}</p>
-            <p><strong>Имейл:</strong> {{ current_user.email }}</p>
-            <p><strong>Регистрация:</strong> {{ current_user.created_at.strftime('%d.%m.%Y') }}</p>
-        </div>
-
-        <div class="settings-card">
-            <h3>Приятели</h3>
-            <div class="friends-list">
-                {% if friends %}
-                    {% for friend in friends %}
-                        <div class="friend-item">
-                            <span>{{ friend.username }}</span>
-                            <small>от {{ friend.since.strftime('%d.%m.%Y') }}</small>
-                        </div>
-                    {% endfor %}
-                {% else %}
-                    <p class="muted">Все още нямаш приятели в приложението.</p>
-                {% endif %}
+        <div class="profile-info">
+            <h1>{{ current_user.username }}</h1>
+            <p class="join-date"><i class="fa-regular fa-calendar"></i> Играе от {{ current_user.created_at.strftime('%d.%m.%Y') }}</p>
+            <div class="profile-badges">
+                <span class="badge-level">Ниво: Начинаещ</span>
+                <span class="badge-xp">Email: {{ current_user.email }}</span>
             </div>
-            <form method="POST" class="friend-form">
-                <input type="hidden" name="action" value="send_request">
-                <input type="text" name="friend_username" placeholder="Потребителско име" required>
-                <button type="submit" class="btn btn-secondary">Изпрати покана</button>
-            </form>
         </div>
     </div>
 
-    <div class="requests-grid">
-        <div class="settings-card">
-            <h3>Получени покани</h3>
-            {% if incoming_requests %}
-                <ul class="request-list">
-                    {% for req in incoming_requests %}
-                        <li>
-                            <div>
-                                <strong>{{ req.username }}</strong>
-                                <small>{{ req.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
-                            </div>
-                            <form method="POST">
-                                <input type="hidden" name="request_id" value="{{ req.id }}">
-                                <button name="action" value="accept_request" class="btn btn-primary btn-small">Приеми</button>
-                                <button name="action" value="decline_request" class="btn btn-secondary btn-small">Откажи</button>
-                            </form>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p class="muted">Няма чакащи покани.</p>
-            {% endif %}
+    <!-- 2. НАВИГАЦИЯ (Tabs) -->
+    <div class="profile-tabs">
+        <button class="tab-btn active" onclick="openTab(event, 'Dashboard')"><i class="fa-solid fa-chart-pie"></i> Статистика</button>
+        <button class="tab-btn" onclick="openTab(event, 'History')"><i class="fa-solid fa-clock-rotate-left"></i> История</button>
+        <button class="tab-btn" onclick="openTab(event, 'Social')"><i class="fa-solid fa-user-group"></i> Приятели</button>
+        <button class="tab-btn" onclick="openTab(event, 'Settings')"><i class="fa-solid fa-gear"></i> Настройки</button>
+    </div>
+
+    <!-- 3. СЪДЪРЖАНИЕ -->
+    
+    <!-- TAB 1: DASHBOARD (Статистика) -->
+    <div id="Dashboard" class="tab-content active-tab">
+        <div class="stats-overview">
+            <div class="stat-box win-box">
+                <div class="icon"><i class="fa-solid fa-trophy"></i></div>
+                <div class="number">{{ stats.wins }}</div>
+                <div class="label">Победи</div>
+            </div>
+            <div class="stat-box draw-box">
+                <div class="icon"><i class="fa-solid fa-handshake"></i></div>
+                <div class="number">{{ stats.draws }}</div>
+                <div class="label">Ремита</div>
+            </div>
+            <div class="stat-box loss-box">
+                <div class="icon"><i class="fa-solid fa-heart-crack"></i></div>
+                <div class="number">{{ stats.losses }}</div>
+                <div class="label">Опити</div>
+            </div>
+            <div class="stat-box time-box">
+                <div class="icon"><i class="fa-solid fa-hourglass-half"></i></div>
+                <div class="number">{{ stats.total_time }}</div>
+                <div class="label">Игрово време</div>
+            </div>
         </div>
-        <div class="settings-card">
-            <h3>Изпратени покани</h3>
-            {% if outgoing_requests %}
-                <ul class="request-list">
-                    {% for req in outgoing_requests %}
-                        <li>
-                            <div>
-                                <strong>{{ req.username }}</strong>
-                                <small>
-                                    {% if req.status == 'pending' %}изчаква от {{ req.created_at.strftime('%d.%m.%Y') }}
-                                    {% elif req.status == 'accepted' %}приета на {{ req.responded_at.strftime('%d.%m.%Y') if req.responded_at else '---' }}
-                                    {% else %}отказана на {{ req.responded_at.strftime('%d.%m.%Y') if req.responded_at else '---' }}{% endif %}
-                                </small>
-                            </div>
-                            <form method="POST">
-                                <input type="hidden" name="request_id" value="{{ req.id }}">
-                                {% if req.status == 'pending' %}
-                                    <button name="action" value="cancel_request" class="btn btn-secondary btn-small">Отмени</button>
-                                {% elif req.status == 'declined' %}
-                                    <button name="action" value="dismiss_request" class="btn btn-secondary btn-small">Премахни</button>
-                                {% else %}
-                                    <span class="status-chip status-success">Приета</span>
-                                {% endif %}
-                            </form>
-                        </li>
-                    {% endfor %}
-                </ul>
-            {% else %}
-                <p class="muted">Не си изпращал покани.</p>
-            {% endif %}
+        
+        <div class="cta-banner">
+            <h3>Готов ли си за нова победа?</h3>
+            <a href="{{ url_for('game.new_game') }}" class="btn btn-primary btn-lg">Нова Игра</a>
         </div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card success">
-            <span class="stat-value">{{ stats.wins }}</span>
-            <span class="stat-label">Победи</span>
-        </div>
-        <div class="stat-card warning">
-            <span class="stat-value">{{ stats.draws }}</span>
-            <span class="stat-label">Реми</span>
-        </div>
-        <div class="stat-card danger">
-            <span class="stat-value">{{ stats.losses }}</span>
-            <span class="stat-label">Загуби</span>
-        </div>
-        <div class="stat-card info">
-            <span class="stat-value">{{ stats.total_time }}</span>
-            <span class="stat-label">Общо време</span>
-        </div>
-    </div>
-
-    <div class="history-header">
-        <h2>История на игрите</h2>
-        <div class="filter-pills">
+    <!-- TAB 2: HISTORY (История като карти) -->
+    <div id="History" class="tab-content">
+        <div class="history-filters">
+            <span class="filter-label">Филтър:</span>
             {% for option in filter_options %}
-                <a class="filter-pill {% if result_filter == option.value %}active{% endif %}"
-                   href="{{ url_for('main.profile', result=option.value if option.value != 'all' else None, page=1) }}">
-                    {{ option.label }}
+                <a href="{{ url_for('main.profile', result=option.value if option.value != 'all' else None, tab='History') }}" 
+                   class="filter-chip {% if result_filter == option.value %}active{% endif %}">
+                   {{ option.label }}
                 </a>
             {% endfor %}
         </div>
+
+        <div class="games-list">
+            {% if games %}
+                {% for game in games %}
+                <!-- Game Card -->
+                <div class="game-card result-{{ game.result_code }}"> <!-- result_code трябва да е 'win', 'loss', 'draw' -->
+                    <div class="game-icon">
+                        {% if game.result_code == 'win' %}<i class="fa-solid fa-trophy"></i>
+                        {% elif game.result_code == 'loss' %}<i class="fa-solid fa-xmark"></i>
+                        {% else %}<i class="fa-solid fa-scale-balanced"></i>{% endif %}
+                    </div>
+                    <div class="game-details">
+                        <h4>Партия #{{ game.id }} <span class="game-date">{{ game.created_at.strftime('%d.%m') }}</span></h4>
+                        <div class="game-meta">
+                            <span><i class="fa-regular fa-clock"></i> {{ game.time_control_display }}</span>
+                            <span><i class="fa-solid fa-chess-pawn"></i> {{ game.player_color_display }}</span>
+                            <span><i class="fa-solid fa-stopwatch"></i> {{ game.duration_display }}</span>
+                        </div>
+                    </div>
+                    <div class="game-actions">
+                        {% if game.can_resume %}
+                            <a href="{{ game.resume_url }}" class="btn btn-primary btn-sm">Възобнови</a>
+                        {% else %}
+                            <a href="{{ game.view_url }}" class="btn btn-secondary btn-sm">Преглед</a>
+                        {% endif %}
+                    </div>
+                    <div class="game-status-stripe"></div>
+                </div>
+                {% endfor %}
+                
+                <!-- Пагинация -->
+                {% if pagination.total_pages > 1 %}
+                <div class="pagination">
+                    <a href="{{ url_for('main.profile', page=pagination.prev_page, tab='History') }}" class="btn btn-sm" {% if not pagination.has_prev %}disabled{% endif %}>&larr;</a>
+                    <span>{{ pagination.page }} / {{ pagination.total_pages }}</span>
+                    <a href="{{ url_for('main.profile', page=pagination.next_page, tab='History') }}" class="btn btn-sm" {% if not pagination.has_next %}disabled{% endif %}>&rarr;</a>
+                </div>
+                {% endif %}
+
+            {% else %}
+                <div class="empty-state">
+                    <i class="fa-solid fa-ghost"></i>
+                    <p>Няма намерени игри.</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
 
-    <div class="history-table-wrapper">
-        <table class="history-table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Дата</th>
-                    <th>Контрол</th>
-                    <th>Цвят</th>
-                    <th>Статус</th>
-                    <th>Време</th>
-                    <th>Резултат</th>
-                    <th>Действия</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% if games %}
-                    {% for game in games %}
-                        <tr class="{{ game.row_class }}">
-                            <td>{{ game.id }}</td>
-                            <td>{{ game.created_at.strftime('%d.%m.%Y %H:%M') }}</td>
-                            <td>{{ game.time_control_display }}</td>
-                            <td>{{ game.player_color_display }}</td>
-                            <td>{{ game.result }}</td>
-                            <td>{{ game.duration_display }}</td>
-                            <td>{{ game.score_display }}</td>
-                            <td class="history-actions">
-                                <a href="{{ game.view_url }}" class="btn btn-small">Преглед</a>
-                                {% if game.can_resume %}
-                                    <a href="{{ game.resume_url }}" class="btn btn-primary btn-small">Възобнови</a>
-                                {% endif %}
-                            </td>
-                        </tr>
+    <!-- TAB 3: SOCIAL (Приятели) -->
+    <div id="Social" class="tab-content">
+        <div class="friends-grid-layout">
+            <!-- Списък приятели -->
+            <div class="friends-column">
+                <h3>Твоят отбор ({{ friends|length }})</h3>
+                <div class="friends-list-modern">
+                    {% if friends %}
+                        {% for friend in friends %}
+                            <div class="friend-card" data-user-id="{{ friend.id }}">
+                                <div class="friend-avatar">
+                                    <span class="status-dot {% if friend.is_online %}status-online{% endif %}"></span>
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                                <div class="friend-info">
+                                    <strong>{{ friend.username }}</strong>
+                                    <small>Приятели от {{ friend.since.strftime('%d.%m.%Y') }}</small>
+                                    <small class="friend-status-text" data-last-seen="{{ friend.last_seen_iso }}">
+                                        {% if friend.is_online %}
+                                            На линия
+                                        {% else %}
+                                            Последно: {{ friend.last_seen_display }}
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                <div class="friend-actions">
+                                    <button class="btn play-online-btn" data-user-id="{{ friend.id }}" data-username="{{ friend.username }}" {% if not friend.is_online %}disabled{% endif %}>
+                                        <i class="fa-solid fa-chess"></i> Онлайн игра
+                                    </button>
+                                    <span class="friend-action-status" aria-live="polite" aria-atomic="true"></span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="muted-text">Още нямаш приятели. Покани някого!</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Форма за добавяне -->
+                <form method="POST" class="add-friend-form">
+                    <input type="hidden" name="action" value="send_request">
+                    <div class="search-input">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" name="friend_username" placeholder="Потребителско име..." required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Изпрати</button>
+                </form>
+            </div>
+
+            <!-- Покани -->
+            <div class="requests-column">
+                <h3>Чакащи покани</h3>
+                {% if incoming_requests %}
+                    {% for req in incoming_requests %}
+                    <div class="request-card">
+                        <div class="req-info">
+                            <strong>{{ req.username }}</strong>
+                            <small>иска да сте приятели</small>
+                        </div>
+                        <form method="POST" class="req-actions">
+                            <input type="hidden" name="request_id" value="{{ req.id }}">
+                            <button name="action" value="accept_request" class="btn-circle btn-success"><i class="fa-solid fa-check"></i></button>
+                            <button name="action" value="decline_request" class="btn-circle btn-danger"><i class="fa-solid fa-xmark"></i></button>
+                        </form>
+                    </div>
                     {% endfor %}
                 {% else %}
-                    <tr>
-                        <td colspan="8" class="muted">Няма записани партии за този филтър.</td>
-                    </tr>
+                    <div class="empty-mini">Няма нови покани 📭</div>
                 {% endif %}
-            </tbody>
-        </table>
+            </div>
+        </div>
     </div>
 
-    {% if pagination.total_pages > 1 %}
-    <div class="pagination-controls">
-        <a class="btn btn-secondary" href="{{ url_for('main.profile', result=result_filter if result_filter != 'all' else None, page=pagination.prev_page) }}" {% if not pagination.has_prev %}aria-disabled="true"{% endif %}>Предишна</a>
-        <span>Страница {{ pagination.page }} от {{ pagination.total_pages }}</span>
-        <a class="btn btn-secondary" href="{{ url_for('main.profile', result=result_filter if result_filter != 'all' else None, page=pagination.next_page) }}" {% if not pagination.has_next %}aria-disabled="true"{% endif %}>Следваща</a>
+    <!-- TAB 4: SETTINGS (Настройки) -->
+    <div id="Settings" class="tab-content">
+        <div class="settings-wrapper">
+            <h3>Външен вид</h3>
+            <form method="POST">
+                <input type="hidden" name="action" value="update_theme">
+                
+                <!-- ВИЗУАЛНИЯТ СЕЛЕКТОР (СЪЩИЯ КАТО ПРИ РЕГИСТРАЦИЯТА) -->
+                <div class="theme-grid">
+                    <label class="theme-option">
+                        <input type="radio" name="board_theme" value="classic" {% if current_user.board_theme == 'classic' %}checked{% endif %}>
+                        <div class="theme-card">
+                            <div class="color-preview classic-preview"></div>
+                            <span>Класика</span>
+                            <i class="fa-solid fa-circle-check check-icon"></i>
+                        </div>
+                    </label>
+                    <label class="theme-option">
+                        <input type="radio" name="board_theme" value="green" {% if current_user.board_theme == 'green' %}checked{% endif %}>
+                        <div class="theme-card">
+                            <div class="color-preview green-preview"></div>
+                            <span>Горска</span>
+                            <i class="fa-solid fa-circle-check check-icon"></i>
+                        </div>
+                    </label>
+                    <label class="theme-option">
+                        <input type="radio" name="board_theme" value="blackwhite" {% if current_user.board_theme == 'blackwhite' %}checked{% endif %}>
+                        <div class="theme-card">
+                            <div class="color-preview bw-preview"></div>
+                            <span>Зебра</span>
+                            <i class="fa-solid fa-circle-check check-icon"></i>
+                        </div>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary mt-3">Запази промените</button>
+            </form>
+        </div>
     </div>
-    {% endif %}
-</section>
+
+</div>
+
+<!-- Simple JS for Tabs -->
+<script>
+function openTab(evt, tabName) {
+    var i, tabcontent, tablinks;
+    tabcontent = document.getElementsByClassName("tab-content");
+    for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+        tabcontent[i].classList.remove("active-tab");
+    }
+    tablinks = document.getElementsByClassName("tab-btn");
+    for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].classList.remove("active");
+    }
+    document.getElementById(tabName).style.display = "block";
+    setTimeout(() => document.getElementById(tabName).classList.add("active-tab"), 10);
+    evt.currentTarget.classList.add("active");
+}
+
+// Open default tab or tab from URL
+document.addEventListener("DOMContentLoaded", function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tab = urlParams.get('tab') || 'Dashboard';
+    
+    // Simulate click
+    const btn = document.querySelector(`.tab-btn[onclick*="${tab}"]`);
+    if(btn) btn.click();
+    else document.querySelector('.tab-btn').click();
+});
+</script>
+{% block extra_scripts %}
+{% endblock %}
 {% endblock %}

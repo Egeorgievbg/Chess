@@ -1,129 +1,209 @@
-﻿{% extends "base.html" %}
+{% extends "base.html" %}
 
-{% block title %}Играй шах | Chess for Kids{% endblock %}
+{% block title %}В игра | Chess for Kids{% endblock %}
 
 {% set status_labels = {
-    'active': 'активна',
-    'won': 'победа',
-    'lost': 'загуба',
-    'draw': 'реми',
-    'finished': 'запазена'
+    'active': 'Активна',
+    'won': 'Победа',
+    'lost': 'Загуба',
+    'draw': 'Реми',
+    'finished': 'Приключена'
 } %}
+
 {% set difficulty_labels = {
-    'easy': 'Лесно',
-    'medium': 'Средно',
-    'hard': 'Трудно'
+    'easy': 'Начинаещ',
+    'medium': 'Напреднал',
+    'hard': 'Гросмайстор'
 } %}
 
 {% block content %}
-<section class="game-section">
-    <div class="game-container">
-        <div class="game-board-column">
-            <div class="game-header">
-                <h1>Текуща партия</h1>
-                <div class="game-meta">
-                    <span id="gameStatus">Статус: {{ status_labels.get(game.status, 'активна') }}</span>
-                    <span id="gameTimeControl">Контрол: {{ 'Без ограничение' if game.time_control == 'unlimited' else game.time_control }}</span>
-                </div>
+<!-- Full Screen Game Container -->
+<div class="game-arena">
+    
+    <!-- 1. ЗОНА НА ПРОТИВНИКА (ГОРЕ) -->
+    <div class="player-zone opponent-zone" id="opponentZone">
+        <div class="player-info">
+            <div class="avatar opponent-avatar">
+                <i class="fa-solid fa-robot" id="opponentIcon"></i>
             </div>
-
-            <div class="game-board-wrapper">
-                <div id="gameMessages"></div>
-                <canvas id="chessboard" width="640" height="640" class="chess-board"></canvas>
-                <div class="move-indicator" id="moveIndicator">Подготви своя ход</div>
+            <div class="details">
+                <span class="name" id="opponentName">
+                    {% if game.opponent %}
+                        {{ opponent_label }}
+                    {% else %}
+                        Роботът {{ difficulty_labels.get(game.difficulty, 'AI') }}
+                    {% endif %}
+                </span>
+                <div class="captured-pieces" id="opponentCaptured">
+                    <!-- Тук ще се появяват взетите пешки -->
+                </div>
             </div>
         </div>
 
-        <aside class="game-sidebar">
-            <div class="info-card">
-                <h3>Информация</h3>
-                <div class="info-row">
-                    <span>Цвят</span>
-                    <strong id="playerColorLabel">{{ 'Бели' if game.player_color == 'white' else 'Черни' }}</strong>
-                </div>
-                <div class="info-row">
-                    <span>Трудност</span>
-                    <strong id="difficultyLabel">{{ difficulty_labels.get(game.difficulty, game.difficulty|title) }}</strong>
-                </div>
-                <div class="info-row">
-                    <span>Начало</span>
-                    <strong id="gameStart">--:--</strong>
-                </div>
-                <div class="info-row">
-                    <span>Продължителност</span>
-                    <strong id="gameDuration">00:00</strong>
-                </div>
-            </div>
-
-            <div class="timers-card">
-                <div>
-                    <p>Твоето време</p>
-                    <div id="playerTimer" class="timer-value">--:--</div>
-                    <small id="playerTotalTime">Общо време: 00:00</small>
-                </div>
-                <div>
-                    <p>Противник</p>
-                    <div id="opponentTimer" class="timer-value">--:--</div>
-                    <small id="opponentTotalTime">Общо време: 00:00</small>
-                </div>
-            </div>
-
-            <div class="captured-card">
-                <h3>Взети фигури</h3>
-                <p>Ти: <span id="yourCaptured">—</span></p>
-                <p>Съперник: <span id="opponentCaptured">—</span></p>
-                <p>Предимство: <strong id="scoreAdvantage">0</strong> точки</p>
-            </div>
-
-            <div class="controls-card">
-                <button id="resumeBtn" type="button" class="btn btn-primary btn-full {% if game.status != 'finished' %}hidden{% endif %}">Продължи играта</button>
-                <button id="resignBtn" type="button" class="btn btn-danger btn-full">Предай играта</button>
-                <button id="newGameBtn" type="button" class="btn btn-secondary btn-full" data-ignore-leave="true">Нова партия</button>
-                <div class="undo-redo">
-                    <button id="undoBtn" type="button" class="btn btn-secondary">Ход назад</button>
-                    <button id="redoBtn" type="button" class="btn btn-secondary" disabled>Ход напред</button>
-                </div>
-                <label class="form-toggle">
-                    <input type="checkbox" id="toggleMoves" checked>
-                    <span id="toggleStatus">Показвай възможните ходове</span>
-                </label>
-                <label class="form-toggle">
-                    <input type="checkbox" id="soundToggle" checked>
-                    <span id="soundStatus">Звук: включен</span>
-                </label>
-            </div>
-
-            <div class="move-history">
-                <h3>Хронология на ходовете</h3>
-                <div id="moveList" class="move-list"></div>
-            </div>
-        </aside>
+        <div class="viewer-color-note">
+            <small>Твоята страна: <strong>{{ 'Белите' if viewer_color == 'white' else 'Черните' }}</strong></small>
+        </div>
+        <div class="timer-display" id="opponentTimer">00:00</div>
     </div>
-</section>
 
-<div id="leaveModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Напускане на партията</h2>
-            <button class="modal-close" aria-label="Затвори">&times;</button>
+    <!-- 2. ШАХМАТНАТА ДЪСКА (ЦЕНТЪР) -->
+    <div class="board-container">
+        <div class="game-meta-bar">
+            <div>
+                <span>Статус</span>
+                <strong>{{ status_labels.get(game.status, 'Активна') }}</strong>
+            </div>
+            <div>
+                <span>Контрол</span>
+                <strong>{{ 'Без ограничения' if game.time_control == 'unlimited' else game.time_control }}</strong>
+            </div>
+            <div>
+                <span>Трудност</span>
+                <strong>{{ difficulty_labels.get(game.difficulty, game.difficulty|title) }}</strong>
+            </div>
+            <div>
+                <span>Цвят</span>
+                <strong>{{ 'Белите' if viewer_color == 'white' else 'Черните' }}</strong>
+            </div>
         </div>
-        <p>Партията ще бъде запазена със статус "запазена" и ще можеш да я продължиш по-късно. Сигурни ли сте, че искате да излезете?</p>
-        <div class="modal-actions">
-            <button id="confirmLeave" class="btn btn-danger">Да, напусни</button>
-            <button id="cancelLeave" class="btn btn-secondary">Остани</button>
+        <div class="match-info">
+            <div class="match-player">
+                <small>Ти</small>
+                <strong>{{ player_label }}</strong>
+            </div>
+            <div class="match-vs">
+                <span>VS</span>
+            </div>
+            <div class="match-player">
+                <small>Противник</small>
+                <strong>{{ opponent_label }}</strong>
+            </div>
+        </div>
+        <!-- Canvas-ът ще се оразмерява автоматично чрез JS/CSS -->
+        <div id="socketStatusBadge" class="socket-status hidden">Свързване...</div>
+        <canvas id="chessboard" class="chess-canvas"></canvas>
+        
+        <!-- Съобщения върху дъската (Шах, Мат, Победа) -->
+        <div id="gameOverlay" class="game-overlay hidden">
+            <div class="overlay-content">
+                <i class="fa-solid fa-trophy trophy-icon"></i>
+                <h2 id="overlayTitle">Победа!</h2>
+                <p id="overlayMessage">Страхотна игра!</p>
+                <div class="overlay-actions">
+                    <button id="rematchBtn" class="btn btn-primary">Нова игра</button>
+                    <a href="{{ url_for('main.index') }}" class="btn btn-secondary">Начало</a>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- 3. ТВОЯТА ЗОНА (ДОЛУ) -->
+    <div class="player-zone player-zone-active" id="playerZone">
+        <div class="timer-display" id="playerTimer">00:00</div>
+        <div class="player-info">
+            <div class="details text-right">
+                <span class="name">{{ current_user.username }}</span>
+                <div class="captured-pieces" id="yourCaptured">
+                    <!-- Твоите трофеи -->
+                </div>
+            </div>
+            <div class="avatar player-avatar">
+                <i class="fa-solid fa-user-astronaut"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. КОНТРОЛЕН ПАНЕЛ (Най-долу) -->
+    <div class="game-controls-dock">
+        <button id="menuBtn" class="control-btn" onclick="toggleMenu()">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        
+        <button id="undoBtn" class="control-btn big-action">
+            <i class="fa-solid fa-rotate-left"></i>
+        </button>
+        
+        <div class="move-indicator-pill" id="moveIndicator">
+            Твой ред
+        </div>
+
+        <button id="chatBtn" class="control-btn" onclick="toggleHistory()">
+            <i class="fa-solid fa-scroll"></i>
+        </button>
+    </div>
+
 </div>
 
-<script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+<!-- МОДАЛНИ ПРОЗОРЦИ (СКРИТИ) -->
+
+<!-- Меню с настройки -->
+<div id="gameMenuModal" class="bottom-sheet">
+    <div class="sheet-content">
+        <div class="sheet-header">
+            <h3>Меню на играта</h3>
+            <button class="close-sheet" onclick="toggleMenu()">&times;</button>
+        </div>
+        <div class="sheet-body">
+            <div class="menu-grid">
+                <button id="resignBtn" class="menu-item danger">
+                    <i class="fa-solid fa-flag"></i> Предай се
+                </button>
+                <button id="drawBtn" class="menu-item warning">
+                    <i class="fa-solid fa-handshake"></i> Предложи реми
+                </button>
+                <label class="menu-item toggle">
+                    <i class="fa-solid fa-lightbulb"></i> Подсказки
+                    <input type="checkbox" id="toggleMoves" checked>
+                </label>
+                <label class="menu-item toggle">
+                    <i class="fa-solid fa-volume-high"></i> Звук
+                    <input type="checkbox" id="soundToggle" checked>
+                </label>
+                <a href="{{ url_for('main.index') }}" class="menu-item">
+                    <i class="fa-solid fa-door-open"></i> Изход
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="sheet-backdrop" onclick="toggleMenu()"></div>
+</div>
+
+<!-- История на ходовете -->
+<div id="historyModal" class="bottom-sheet">
+    <div class="sheet-content">
+        <div class="sheet-header">
+            <h3>История на ходовете</h3>
+            <button class="close-sheet" onclick="toggleHistory()">&times;</button>
+        </div>
+        <div class="sheet-body">
+            <div id="moveList" class="move-history-list">
+                <!-- Ходовете ще се генерират тук от JS -->
+            </div>
+        </div>
+    </div>
+    <div class="sheet-backdrop" onclick="toggleHistory()"></div>
+</div>
+
 <script src="{{ url_for('static', filename='js/chess.js') }}"></script>
 <script>
-    const gameId = {{ game.id }};
-    const playerColor = '{{ game.player_color }}';
-    const difficulty = '{{ game.difficulty }}';
-    const boardTheme = '{{ current_user.board_theme if current_user.is_authenticated else "classic" }}';
-    const initialGameStatus = '{{ game.status }}';
-    const isMultiplayer = {{ 'true' if game.opponent_id else 'false' }};
+    // Прехвърляне на данните към JS
+    const gameConfig = {
+        id: {{ game.id }},
+        difficulty: '{{ game.difficulty }}',
+        boardTheme: '{{ current_user.board_theme if current_user.is_authenticated else "classic" }}',
+        status: '{{ game.status }}',
+        isMultiplayer: {{ 'true' if game.opponent_id else 'false' }},
+        isOnlineMultiplayer: {{ 'true' if game.is_multiplayer_online else 'false' }},
+        playerColor: '{{ viewer_color }}'
+    };
+    
+    // Функции за модалните прозорци
+    function toggleMenu() {
+        document.getElementById('gameMenuModal').classList.toggle('active');
+    }
+    function toggleHistory() {
+        document.getElementById('historyModal').classList.toggle('active');
+    }
 </script>
 <script src="{{ url_for('static', filename='js/game.js') }}"></script>
 {% endblock %}

@@ -1,0 +1,65 @@
+:root {
+    --lesson-stub-accent: #ffca28;
+}
+
+.lesson-stub {
+    min-height: 60vh;
+    display: flex;
+    justify-content: center;
+    padding: 4rem 1.5rem;
+}
+
+.lesson-stub-card {
+    background: white;
+    border-radius: 28px;
+    padding: 3rem;
+    max-width: 720px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 25px 55px rgba(17, 24, 39, 0.16);
+    border: 1px solid rgba(255, 202, 40, 0.2);
+}
+
+.lesson-stub-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1.3rem;
+    border-radius: 999px;
+    font-weight: 700;
+    color: var(--lesson-stub-accent);
+    background: rgba(255, 202, 40, 0.15);
+}
+
+.lesson-stub-card h1 {
+    font-size: 2.4rem;
+    margin: 1.5rem 0 0.8rem;
+    color: #2d1f12;
+}
+
+.lesson-stub-card p {
+    color: #5b5042;
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.lesson-stub-actions {
+    margin-top: 2rem;
+}
+
+.lesson-stub-actions .btn-secondary {
+    padding: 0.9rem 1.4rem;
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+}
+
+@media (max-width: 640px) {
+    .lesson-stub-card {
+        padding: 2rem;
+    }
+
+    .lesson-stub-card h1 {
+        font-size: 2rem;
+    }
+}

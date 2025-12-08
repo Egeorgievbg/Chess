@@ -4,7 +4,11 @@
         this.playerColor = options.playerColor;
         this.boardTheme = options.boardTheme || 'classic';
         this.isMultiplayer = options.isMultiplayer || false;
+        this.isOnlineMultiplayer = options.isOnlineMultiplayer || false;
         this.currentStatus = options.initialStatus || 'active';
+        this.socket = window.socket || null;
+        this._socketMoveHandler = null;
+        this._socketErrorHandler = null;
 
         this.canvas = document.getElementById('chessboard');
         this.ctx = this.canvas.getContext('2d');
@@ -42,6 +46,7 @@
         this.piecesLayer = null;
         this.isSubmittingMove = false;
         this.resizeTimeout = null;
+        this.socketWatchTimer = null;
 
         this.initialize();
     }
@@ -54,6 +59,8 @@
         this.displayStartTime();
         this.toggleBoardInteractivity();
         this.loadBoard();
+        this.setupOnlineHandlers();
+        this.queueSocketSetup();
     }
 
     bindResizeEvents() {
@@ -132,7 +139,7 @@
             const y = event.clientY - rect.top;
             const col = Math.min(7, Math.max(0, Math.floor((x / this.canvas.width) * 8)));
             const row = Math.min(7, Math.max(0, Math.floor((y / this.canvas.height) * 8)));
-            const square = this.coordsToSquare(col, row);
+        const square = this.canvasCoordsToSquare(col, row);
             this.handleSquareSelection(square);
         });
     }
@@ -206,10 +213,11 @@
     }
 
     drawSquares() {
-        for (let row = 0; row < 8; row += 1) {
-            for (let col = 0; col < 8; col += 1) {
-                const isLight = (row + col) % 2 === 0;
+        for (let boardRow = 0; boardRow < 8; boardRow += 1) {
+            for (let boardCol = 0; boardCol < 8; boardCol += 1) {
+                const isLight = (boardRow + boardCol) % 2 === 0;
                 this.ctx.fillStyle = isLight ? this.lightSquare : this.darkSquare;
+                const [col, row] = this.getCanvasCoordsFromBoard(boardCol, boardRow);
                 this.ctx.fillRect(
                     col * this.squareSize,
                     row * this.squareSize,
@@ -222,7 +230,8 @@
 
     drawHighlights() {
         if (!this.selectedSquare) return;
-        const [selCol, selRow] = this.squareToCoords(this.selectedSquare);
+        const [selBoardCol, selBoardRow] = this.squareToCoords(this.selectedSquare);
+        const [selCol, selRow] = this.getCanvasCoordsFromBoard(selBoardCol, selBoardRow);
         this.ctx.fillStyle = 'rgba(255, 193, 7, 0.45)';
         this.ctx.fillRect(selCol * this.squareSize, selRow * this.squareSize, this.squareSize, this.squareSize);
 
@@ -230,7 +239,8 @@
         this.ctx.fillStyle = 'rgba(76, 175, 80, 0.45)';
         this.availableMovesFromSelection.forEach((move) => {
             const target = move.substring(2, 4);
-            const [col, row] = this.squareToCoords(target);
+            const [boardCol, boardRow] = this.squareToCoords(target);
+            const [col, row] = this.getCanvasCoordsFromBoard(boardCol, boardRow);
             this.ctx.beginPath();
             this.ctx.arc(
                 col * this.squareSize + this.squareSize / 2,
@@ -247,7 +257,8 @@
         if (!this.piecesLayer) return;
         this.piecesLayer.innerHTML = '';
         Object.entries(this.squareMap).forEach(([square, piece]) => {
-            const [col, row] = this.squareToCoords(square);
+            const [boardCol, boardRow] = this.squareToCoords(square);
+            const [col, row] = this.getCanvasCoordsFromBoard(boardCol, boardRow);
             const size = this.squareSize * 0.9;
             const offset = (this.squareSize - size) / 2;
             const isWhite = piece === piece.toUpperCase();
@@ -341,6 +352,15 @@
             move: moveUci,
             time_snapshot: this.buildTimeSnapshot()
         };
+
+        if (this.isOnlineMultiplayer && this.socket && this.socket.connected) {
+            this.socket.emit('make_move', {
+                game_id: this.gameId,
+                move_uci: moveUci,
+                time_snapshot: payload.time_snapshot
+            });
+            return;
+        }
 
         fetch(`/game/${this.gameId}/move`, {
             method: 'POST',
@@ -733,6 +753,25 @@
         return [file, 8 - rank];
     }
 
+    getBoardCoordsFromCanvas(col, row) {
+        if (this.playerColor === 'white') {
+            return { boardCol: col, boardRow: row };
+        }
+        return { boardCol: 7 - col, boardRow: 7 - row };
+    }
+
+    getCanvasCoordsFromBoard(boardCol, boardRow) {
+        if (this.playerColor === 'white') {
+            return [boardCol, boardRow];
+        }
+        return [7 - boardCol, 7 - boardRow];
+    }
+
+    canvasCoordsToSquare(col, row) {
+        const { boardCol, boardRow } = this.getBoardCoordsFromCanvas(col, row);
+        return this.coordsToSquare(boardCol, boardRow);
+    }
+
     getUnicodePiece(piece) {
         const map = {
             K: '?', Q: '?', R: '?', B: '?', N: '?', P: '?',
@@ -780,6 +819,67 @@
         const isActive = this.isGameActive();
         this.canvas.style.pointerEvents = isActive ? 'auto' : 'none';
         this.canvas.classList.toggle('board-disabled', !isActive);
+    }
+
+    setupOnlineHandlers() {
+        if (!this.isOnlineMultiplayer || !this.socket) return;
+        if (this._socketMoveHandler) {
+            this.socket.off('move_made', this._socketMoveHandler);
+            this.socket.off('move_error', this._socketErrorHandler);
+        }
+        this._socketMoveHandler = (data) => this.onSocketMove(data);
+        this._socketErrorHandler = (payload) => this.onSocketMoveError(payload);
+        this.socket.on('move_made', this._socketMoveHandler);
+        this.socket.on('move_error', this._socketErrorHandler);
+        this.socket.on('connect', () => this.joinOnlineRoom());
+        if (this.socket.connected) {
+            this.joinOnlineRoom();
+        }
+    }
+
+    queueSocketSetup() {
+        if (!this.isOnlineMultiplayer) return;
+        if (typeof window === 'undefined') return;
+        this.tryAttachSocket();
+        if (this.socket) {
+            return;
+        }
+        if (this.socketWatchTimer) return;
+        this.socketWatchTimer = setInterval(() => {
+            this.tryAttachSocket();
+            if (this.socket) {
+                clearInterval(this.socketWatchTimer);
+                this.socketWatchTimer = null;
+            }
+        }, 150);
+    }
+
+    tryAttachSocket() {
+        if (typeof window === 'undefined' || !window.socket) return;
+        if (this.socket === window.socket) return;
+        this.socket = window.socket;
+        this.setupOnlineHandlers();
+    }
+
+    joinOnlineRoom() {
+        if (!this.socket || !this.gameId) return;
+        this.socket.emit('join_game', { game_id: this.gameId });
+    }
+
+    onSocketMove(data) {
+        if (!data || data.game_id !== this.gameId) return;
+        this.applyServerPayload(data);
+        this.playMoveAudio(data.moves_san || []);
+        this.isSubmittingMove = false;
+        this.showThinkingIndicator(false);
+    }
+
+    onSocketMoveError(payload) {
+        if (!payload || payload.game_id !== this.gameId) return;
+        this.notification?.error(payload.message || 'Грешка при мрежовия ход.');
+        this.loadBoard();
+        this.isSubmittingMove = false;
+        this.showThinkingIndicator(false);
     }
 }
 

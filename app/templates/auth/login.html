@@ -3,27 +3,46 @@
 {% block title %}Вход | Chess for Kids{% endblock %}
 
 {% block content %}
-<section class="auth-section">
-    <div class="auth-card">
-        <h1>Добре дошъл отново!</h1>
-        <p class="auth-subtitle">Въведи потребителско име и парола, за да продължиш игрите си.</p>
+<div class="auth-wrapper">
+    <!-- Анимирани фигури за фон (декорация) -->
+    <div class="bg-shape shape-1"><i class="fa-solid fa-chess-rook"></i></div>
+    <div class="bg-shape shape-2"><i class="fa-solid fa-chess-knight"></i></div>
+
+    <div class="auth-card animated-entry">
+        <div class="auth-header">
+            <div class="icon-avatar">
+                <i class="fa-solid fa-user-astronaut"></i>
+            </div>
+            <h1>Хайде да играем!</h1>
+            <p>Влез и покажи най-добрите си ходове.</p>
+        </div>
 
         <form method="POST" class="auth-form">
-            <label class="form-field">
-                <span>Потребителско име</span>
-                <input type="text" name="username" required placeholder="пример: chess_kid">
-            </label>
-            <label class="form-field">
-                <span>Парола</span>
-                <input type="password" name="password" required placeholder="минимум 6 символа">
-            </label>
-            <button type="submit" class="btn btn-primary btn-full">Вход</button>
+            <!-- Поле за Потребител -->
+            <div class="input-group">
+                <div class="input-icon">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <input type="text" name="username" required placeholder="Потребителско име">
+            </div>
+
+            <!-- Поле за Парола -->
+            <div class="input-group">
+                <div class="input-icon">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <input type="password" name="password" required placeholder="Парола">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full btn-animate">
+                Вход в играта <i class="fa-solid fa-arrow-right"></i>
+            </button>
         </form>
 
-        <p class="auth-switch">
-            Нямаш профил?
-            <a href="{{ url_for('auth.register') }}">Регистрирай се тук</a>
-        </p>
+        <div class="auth-footer">
+            <p>Нямаш акаунт?</p>
+            <a href="{{ url_for('auth.register') }}" class="link-highlight">Създай си герой тук</a>
+        </div>
     </div>
-</section>
+</div>
 {% endblock %}

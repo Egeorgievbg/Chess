@@ -2,51 +2,200 @@
 <html lang="bg">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Chess for Kids{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#8B7355">
+    <meta name="description" content="Шах от Ивчо - играй, учи и се забавлявай в безопасна среда.">
+    
+    <!-- iOS настройки за App-like усещане -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <title>{% block title %}Шах от Ивчо{% endblock %}</title>
+    
+    <!-- Google Fonts: Nunito (заоблен шрифт за деца) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Твоят CSS файл -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
+    <!-- Favicon (Сложи си картинка в static/img/favicon.png) -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+
+    {% block extra_head %}{% endblock %}
 </head>
 <body>
+    <script src="{{ url_for('static', filename='js/utils.js') }}"></script>
+
+    <!-- 1. PRELOADER (Анимация при зареждане) -->
+    <div id="page-preloader" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #F7F5F2; z-index: 9999; display: flex; justify-content: center; align-items: center; transition: opacity 0.5s ease;">
+        <div style="text-align: center;">
+            <i class="fa-solid fa-chess-knight fa-bounce" style="font-size: 3.5rem; color: #8B7355; --fa-animation-duration: 2s;"></i>
+            <p style="margin-top: 15px; font-weight: 800; color: #8B7355; font-size: 1.1rem;">Зареждане...</p>
+        </div>
+    </div>
+
+    <!-- 2. НАВИГАЦИЯ -->
     <nav class="navbar">
-        <div class="container">
-            <div class="navbar-brand">
-                <a href="{{ url_for('main.index') }}" class="logo">Chess for Kids</a>
-            </div>
-            <ul class="navbar-menu">
-                <li><a href="{{ url_for('main.index') }}">Начало</a></li>
-                <li><a href="{{ url_for('main.lessons') }}">Уроци</a></li>
-                <li><a href="{{ url_for('main.about') }}">За играта</a></li>
+        <div class="container nav-container">
+            <!-- Лого -->
+            <a href="{{ url_for('main.index') }}" class="logo">
+                <span style="background: var(--primary-color); color: white; width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 8px;">
+                    <i class="fa-solid fa-chess-knight"></i>
+                </span>
+                ШахчоБГ
+            </a>
+            
+            <!-- Бутон за мобилно меню -->
+            <button class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Меню">
+                <i class="fa-solid fa-bars-staggered"></i>
+            </button>
+
+            <!-- Линкове -->
+            <ul class="navbar-menu" id="nav-menu">
+                <li>
+                    <a href="{{ url_for('main.index') }}" class="{{ 'active' if request.endpoint == 'main.index' else '' }}">
+                        <i class="fa-solid fa-house"></i> Начало
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('main.lessons') }}" class="{{ 'active' if request.endpoint == 'main.lessons' else '' }}">
+                        <i class="fa-solid fa-graduation-cap"></i> Уроци
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url_for('main.about') }}" class="{{ 'active' if request.endpoint == 'main.about' else '' }}">
+                        <i class="fa-solid fa-circle-info"></i> Инфо
+                    </a>
+                </li>
+                
                 {% if current_user.is_authenticated %}
-                    <li><a href="{{ url_for('main.profile') }}" class="user-profile">Здравей, {{ current_user.username }}</a></li>
-                    <li><a href="{{ url_for('auth.logout') }}" class="btn btn-logout">Изход</a></li>
+                    <!-- Ако е логнат -->
+                    <li class="user-menu-item">
+                        <a href="{{ url_for('main.profile') }}" class="user-profile {{ 'active' if request.endpoint == 'main.profile' else '' }}" style="background: rgba(139, 115, 85, 0.1); border-radius: 50px; padding: 5px 15px;">
+                            <i class="fa-solid fa-user-astronaut"></i> {{ current_user.username }}
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ url_for('auth.logout') }}" class="btn btn-logout" title="Изход">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                        </a>
+                    </li>
                 {% else %}
-                    <li><a href="{{ url_for('auth.login') }}" class="btn btn-login">Вход</a></li>
-                    <li><a href="{{ url_for('auth.register') }}" class="btn btn-register">Регистрация</a></li>
+                    <!-- Ако НЕ е логнат -->
+                    <li class="auth-buttons">
+                        <a href="{{ url_for('auth.login') }}" class="btn btn-login">Вход</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-register">Старт</a>
+                    </li>
                 {% endif %}
             </ul>
         </div>
     </nav>
 
-    <div class="messages">
+    <!-- 3. СЪОБЩЕНИЯ (Toast Notifications) -->
+    <div class="messages-container">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
-                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                    <div class="toast toast-{{ category }}">
+                        {% if category == 'success' %}
+                            <i class="fa-solid fa-circle-check text-success"></i>
+                        {% elif category == 'error' %}
+                            <i class="fa-solid fa-circle-exclamation text-danger"></i>
+                        {% else %}
+                            <i class="fa-solid fa-circle-info text-info"></i>
+                        {% endif %}
+                        <span>{{ message }}</span>
+                    </div>
                 {% endfor %}
             {% endif %}
         {% endwith %}
     </div>
 
-    <main class="container">
-        {% block content %}{% endblock %}
+    <!-- 4. ОСНОВНО СЪДЪРЖАНИЕ -->
+    <main class="main-content">
+        <div class="container">
+            {% block content %}{% endblock %}
+        </div>
     </main>
 
-    <footer class="site-footer">
-        <p>&copy; 2025 Chess for Kids. Всички права запазени.</p>
+    <!-- 5. ФУТЪР -->
+    <footer class="site-footer" style="margin-top: auto; padding: 2rem 0; text-align: center; color: #888; border-top: 1px solid rgba(0,0,0,0.05);">
+        <div class="container">
+            <p>&copy; 2025 <strong>Шах от Ивчо</strong>.</p>
+            <p style="font-size: 0.9rem; margin-top: 5px;">
+                Направено с <i class="fa-solid fa-heart fa-beat" style="color: #EF5350; margin: 0 3px;"></i> от татко и син.
+            </p>
+        </div>
     </footer>
 
+    <!-- JavaScript -->
+    <script src="https://cdn.socket.io/4.6.1/socket.io.min.js"></script>
+    {% if current_user.is_authenticated %}
+        <script src="{{ url_for('static', filename='js/social.js') }}"></script>
+    {% endif %}
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // 1. Скриване на Preloader-а
+            const preloader = document.getElementById('page-preloader');
+            if(preloader) {
+                setTimeout(() => {
+                    preloader.style.opacity = '0';
+                    setTimeout(() => {
+                        preloader.style.display = 'none';
+                    }, 500);
+                }, 600); // Малко изкуствено забавяне за ефект
+            }
+
+            // 2. Мобилно Меню Логика
+            const menuBtn = document.getElementById('mobile-menu-toggle');
+            const navMenu = document.getElementById('nav-menu');
+            const menuIcon = menuBtn.querySelector('i');
+
+            if(menuBtn && navMenu) {
+                menuBtn.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                    
+                    // Смяна на иконата (Бургер <-> Хикс)
+                    if (navMenu.classList.contains('active')) {
+                        menuIcon.classList.remove('fa-bars-staggered');
+                        menuIcon.classList.add('fa-xmark');
+                    } else {
+                        menuIcon.classList.remove('fa-xmark');
+                        menuIcon.classList.add('fa-bars-staggered');
+                    }
+                });
+
+                // Затваряне при клик извън менюто
+                document.addEventListener('click', function(e) {
+                    if (!navMenu.contains(e.target) && !menuBtn.contains(e.target) && navMenu.classList.contains('active')) {
+                        navMenu.classList.remove('active');
+                        menuIcon.classList.remove('fa-xmark');
+                        menuIcon.classList.add('fa-bars-staggered');
+                    }
+                });
+            }
+
+            // 3. Автоматично скриване на съобщенията (Toasts)
+            const toasts = document.querySelectorAll('.toast');
+            if (toasts.length > 0) {
+                setTimeout(() => {
+                    toasts.forEach(t => {
+                        t.style.transition = "opacity 0.5s, transform 0.5s";
+                        t.style.opacity = '0';
+                        t.style.transform = 'translateX(100%)';
+                        setTimeout(() => t.remove(), 500);
+                    });
+                }, 4000); // 4 секунди видимост
+            }
+        });
+    </script>
     {% block extra_scripts %}{% endblock %}
 </body>
 </html>

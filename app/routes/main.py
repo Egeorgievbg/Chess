@@ -30,6 +30,134 @@ def lessons():
     return render_template('lessons.html')
 
 
+@main_bp.route('/lessons/lesson-01')
+def lesson_intro():
+    figures = [
+        {'symbol': '♙', 'name': 'Пешка', 'points': 1, 'hint': 'Движи се напред, но бие диагонално.', 'home': 'втора линия (a2-h2) – охранява центъра'},
+        {'symbol': '♖', 'name': 'Ладия', 'points': 5, 'hint': 'Ходи само по прави линии.', 'home': 'ъглови полета (a1/h1) – контролира файловете'},
+        {'symbol': '♘', 'name': 'Кон', 'points': 3, 'hint': 'Скача в Г-образна стъпка.', 'home': 'b1 и g1 – прескача блокираните полета'},
+        {'symbol': '♗', 'name': 'Слон', 'points': 3, 'hint': 'Обхожда диагоналите.', 'home': 'c1 и f1 – гледа диагоналите към центъра'},
+        {'symbol': '♕', 'name': 'Ферз', 'points': 9, 'hint': 'Съчетава силата на слона и ладията.', 'home': 'd1, в центъра на дъската'},
+        {'symbol': '♔', 'name': 'Крал', 'points': 0, 'hint': 'Най-важен, пази го винаги.', 'home': 'e1, под защитата на пешки и офицери'}
+    ]
+    lesson_tips = [
+        'Дамата обича да стои в центъра – помага и на ладията.',
+        'Пешката става ферз, когато стигне края.',
+        'Конът „прескача“ фигури и често изненадва.',
+        'Слоновете се движат по диагонал, ладията – по права линия.',
+        'Другият играч трябва да бъде в шах, преди да поемеш краля.'
+    ]
+    lesson_palette = [
+        {'code': 'wp', 'symbol': '♙', 'name': 'Пешка'},
+        {'code': 'wn', 'symbol': '♘', 'name': 'Кон'},
+        {'code': 'wb', 'symbol': '♗', 'name': 'Слон'},
+        {'code': 'wr', 'symbol': '♖', 'name': 'Ладия'},
+        {'code': 'wq', 'symbol': '♕', 'name': 'Ферз'},
+        {'code': 'wk', 'symbol': '♔', 'name': 'Крал'}
+    ]
+    lesson_positions = {
+        'a1': 'wr', 'b1': 'wn', 'c1': 'wb', 'd1': 'wq',
+        'e1': 'wk', 'f1': 'wb', 'g1': 'wn', 'h1': 'wr',
+        'a2': 'wp', 'b2': 'wp', 'c2': 'wp', 'd2': 'wp',
+        'e2': 'wp', 'f2': 'wp', 'g2': 'wp', 'h2': 'wp'
+    }
+    return render_template(
+        'lessons/lesson_01.html',
+        figures=figures,
+        lesson_tips=lesson_tips,
+        lesson_palette=lesson_palette,
+        lesson_positions=lesson_positions
+    )
+
+
+@main_bp.route('/lessons/lesson-02')
+def lesson_rules():
+    lesson_palette = [
+        {'code': 'wp', 'symbol': '♙', 'name': 'Пешка'},
+        {'code': 'wn', 'symbol': '♘', 'name': 'Кон'},
+        {'code': 'wb', 'symbol': '♗', 'name': 'Слон'},
+        {'code': 'wr', 'symbol': '♖', 'name': 'Ладия'},
+        {'code': 'wq', 'symbol': '♕', 'name': 'Ферз'},
+        {'code': 'wk', 'symbol': '♔', 'name': 'Крал'}
+    ]
+    lesson_positions = {
+        'e1': 'wk', 'd1': 'wq',
+        'a2': 'wp', 'b2': 'wp', 'c2': 'wp', 'd2': 'wp',
+        'e2': 'wp', 'f2': 'wp', 'g2': 'wp', 'h2': 'wp',
+        'f3': 'wn', 'c3': 'wn'
+    }
+    lesson_examples = [
+        {
+            'piece_code': 'wp',
+            'symbol': '♙',
+            'title': 'Пешката напред',
+            'description': 'Пешката може да слезе само един квадрат напред, освен при първия ход, когато има право на два.',
+            'squares': ['d4', 'd5']
+        },
+        {
+            'piece_code': 'wn',
+            'symbol': '♘',
+            'title': 'Конът прескача',
+            'description': 'Конът скача по “Г”-образен шаблон и може да се разположи зад препятствие, защото прескача.',
+            'squares': ['c4', 'e4', 'g2', 'd5']
+        },
+        {
+            'piece_code': 'wb',
+            'symbol': '♗',
+            'title': 'Слонът по диагонал',
+            'description': 'Слонът плува по диагоналите – силен е, когато има много празно пространство пред себе си.',
+            'squares': ['a5', 'c5', 'f4', 'h6']
+        }
+    ]
+    lesson_story = [
+        {
+            'title': 'За децата',
+            'text': 'Правилата дават структурата на всяка игра. Когато знаеш как се движат фигурите, можеш да изграждаш първите си тактики, без да се чудиш какво е позволено.'
+        },
+        {
+            'title': 'За родителите',
+            'text': 'Подкрепете детето, като го научите да наблюдава дъската спокойно. Малките ритуали преди игра – “проверка на краля” и “помощ на пешките” – работят по-добре от строгите уроци.'
+        },
+        {
+            'title': 'Стъпка по стъпка',
+            'text': 'Започваме с основната диаграма: крал и ферз в центъра, пешки готови за движение и коне, които щъкат умерено. Когато разпознаеш позицията, знаеш и правилата.'
+        }
+    ]
+    lesson_highlights = [
+        'Шахът е повече от трофеи – това е диалог между крал и пешка.',
+        'Правилата пазят играта от хаос и създават ред.',
+        'Дайте на детето 5 минути да обясни защо е поставило фигура на конкретно поле – така започва разсъждението.'
+    ]
+    return render_template(
+        'lessons/lesson_02.html',
+        lesson_palette=lesson_palette,
+        lesson_highlights=lesson_highlights,
+        lesson_story=lesson_story,
+        lesson_positions=lesson_positions,
+        lesson_examples=lesson_examples
+    )
+
+
+@main_bp.route('/lessons/lesson-03')
+def lesson_tactics():
+    return render_template('lessons/lesson_03.html')
+
+
+@main_bp.route('/lessons/lesson-04')
+def lesson_strategy():
+    return render_template('lessons/lesson_04.html')
+
+
+@main_bp.route('/lessons/lesson-05')
+def lesson_puzzles():
+    return render_template('lessons/lesson_05.html')
+
+
+@main_bp.route('/lessons/lesson-06')
+def lesson_bonus():
+    return render_template('lessons/lesson_06.html')
+
+
 def format_time_control(value: str) -> str:
     if not value or value == 'unlimited':
         return 'Без ограничение'
@@ -239,9 +367,14 @@ def profile():
         friend_map = {f.friend_id: f for f in friend_links}
         users = User.query.filter(User.id.in_(friend_ids)).order_by(User.username.asc()).all()
         for user in users:
+            last_seen = user.last_seen or user.created_at
             friends_data.append({
+                'id': user.id,
                 'username': user.username,
-                'since': friend_map[user.id].created_at
+                'since': friend_map[user.id].created_at,
+                'is_online': bool(user.sid),
+                'last_seen_iso': last_seen.isoformat() if last_seen else '',
+                'last_seen_display': last_seen.strftime('%d.%m.%Y %H:%M') if last_seen else 'Не е играл'
             })
 
     games_as_player = Game.query.filter_by(player_id=current_user.id).all()

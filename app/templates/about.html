@@ -3,26 +3,89 @@
 {% block title %}За проекта | Chess for Kids{% endblock %}
 
 {% block content %}
-<section class="about-section">
+
+<!-- СЕКЦИЯ 1: Мисия -->
+<section class="about-hero">
+    <div class="about-badge"><i class="fa-solid fa-heart"></i> Семеен проект</div>
+    <h1>Шахът може да бъде весел, <br>разбираем и <span class="highlight">безопасен</span>.</h1>
+    <p class="lead-text">
+        В свят, пълен със сложни приложения, ние искахме да създадем нещо просто. 
+        Място, където децата да се влюбят в играта, без да се разсейват от реклами.
+    </p>
+</section>
+
+<!-- СЕКЦИЯ 2: Създателите (Татко и Син) -->
+<section class="creators-section">
+    <div class="creators-grid">
+        <!-- Карта на Таткото -->
+        <div class="creator-card">
+            <div class="avatar parent-avatar">
+                <i class="fa-solid fa-chess-king"></i>
+            </div>
+            <h3>Таткото</h3>
+            <p class="role">Главен Програмист & Треньор</p>
+            <p class="desc">Отговаря за архитектурата (Flask & Python), сървърите и това всичко да работи "под капака".</p>
+        </div>
+
+        <!-- Символ за връзка -->
+        <div class="connector">
+            <i class="fa-solid fa-plus"></i>
+        </div>
+
+        <!-- Карта на Сина -->
+        <div class="creator-card">
+            <div class="avatar kid-avatar">
+                <i class="fa-solid fa-chess-pawn"></i>
+            </div>
+            <h3>Синът</h3>
+            <p class="role">Дизайнер & Тест Пилот</p>
+            <p class="desc">Отговаря за правилата, тестването на AI-то и дава идеи как играта да изглежда по-добре.</p>
+        </div>
+    </div>
+</section>
+
+<!-- СЕКЦИЯ 3: Как е направено (Технологии) -->
+<section class="tech-section">
     <div class="section-header">
-        <p class="eyebrow">Защо създадохме платформата</p>
-        <h1>Шахът може да бъде весел, разбираем и напълно безопасен.</h1>
-        <p>Комбинираме модерни уеб технологии и години опит в обучението на деца. Интерфейсът е преведен на български, а всяка стъпка е обяснена.</p>
+        <h2>Как работи магията?</h2>
+        <p>Комбинираме модерни технологии с класически правила.</p>
     </div>
 
-    <div class="about-grid">
-        <article>
-            <h3>Методика за начинаещи</h3>
-            <p>Структурирани уроци, примери и цветни илюстрации превеждат учениците през правилата на играта.</p>
+    <div class="info-grid">
+        <!-- Методика -->
+        <article class="info-card">
+            <div class="icon-circle icon-yellow">
+                <i class="fa-solid fa-lightbulb"></i>
+            </div>
+            <h3>Методика</h3>
+            <p>Уроците са структурирани така, че да са интересни за деца. Използваме цветни илюстрации и кратък текст на български език.</p>
         </article>
-        <article>
-            <h3>Стабилна архитектура</h3>
-            <p>Flask + SQLAlchemy на бекенд, Canvas + JavaScript отпред. Всички ходове се валидират от python-chess за пълна коректност.</p>
+
+        <!-- Технологии (Visual Tags) -->
+        <article class="info-card">
+            <div class="icon-circle icon-blue">
+                <i class="fa-solid fa-code"></i>
+            </div>
+            <h3>Технологии</h3>
+            <p>Мощен Python бекенд и бърз JavaScript фронтенд.</p>
+            
+            <div class="tech-tags">
+                <span class="tag"><i class="fa-brands fa-python"></i> Python</span>
+                <span class="tag"><i class="fa-solid fa-flask"></i> Flask</span>
+                <span class="tag"><i class="fa-solid fa-database"></i> SQLAlchemy</span>
+                <span class="tag"><i class="fa-brands fa-js"></i> Canvas JS</span>
+            </div>
         </article>
-        <article>
-            <h3>Сигурност и контрол</h3>
-            <p>Всяка партия може да бъде запазена, възобновена или прегледана. Таймерите и статистиката се синхронизират между клиента и сървъра.</p>
+
+        <!-- Сигурност -->
+        <article class="info-card">
+            <div class="icon-circle icon-green">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3>Сигурност</h3>
+            <p>Всички ходове се валидират от библиотеката <code>python-chess</code>. Историята се пази в защитена база данни.</p>
         </article>
     </div>
 </section>
+
 {% endblock %}
