@@ -11,7 +11,14 @@ permissions:
   contents: read
 
 jobs:
+  runner-diagnostic:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Confirm runner startup
+        run: echo "GitHub-hosted runner started successfully"
+
   smoke-tests:
+    needs: runner-diagnostic
     runs-on: ubuntu-latest
 
     steps:
