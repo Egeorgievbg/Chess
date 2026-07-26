@@ -4,8 +4,8 @@ Flask-Login==0.6.2
 Flask-WTF==1.1.1
 WTForms==3.0.1
 Werkzeug==2.3.7
-python-chess
-Flask-SocketIO
-eventlet
-gevent
-debug
+python-chess==1.9.4
+Flask-SocketIO==5.3.6
+gevent==24.2.1
+gunicorn==22.0.0
+python-dotenv==1.0.1
