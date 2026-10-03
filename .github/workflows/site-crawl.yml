@@ -1,0 +1,31 @@
+name: Site crawl archive
+
+on:
+  push:
+    branches:
+      - site-crawl-temp
+  workflow_dispatch:
+
+jobs:
+  crawl:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: pip install requests beautifulsoup4 lxml
+      - name: Crawl ThinkMove
+        run: python tools/site_crawler.py --site https://thinkmove.bg/ --out archives/thinkmove --max-pages 500 --delay 0.35
+      - name: Crawl Shahimat
+        run: python tools/site_crawler.py --site https://shahimat.eu/ --out archives/shahimat --max-pages 500 --delay 0.35
+      - name: Zip
+        run: zip -r thinkmove-vs-shahimat-html-css.zip archives
+      - name: Upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: thinkmove-vs-shahimat-html-css
+          path: thinkmove-vs-shahimat-html-css.zip
+          retention-days: 30
